@@ -34,3 +34,14 @@ export const createAccount = async (email, password) => {
     // await setBOTMessageLTS(user.uid, welcome_text)
     return user
 }
+export const loginAccount = async (email, password) => {
+    try {
+        const { user } = await signInWithEmailAndPassword(auth, email, password)
+        alert('giriş başarılı')
+        return user
+    }catch (err) {
+        alert(err)
+        // (err.message.includes('user-not-found')) &&
+        // alert('Girdiğiniz e-posta veya parola yanlış. Lütfen tekrar deneyin.')
+    }
+}
