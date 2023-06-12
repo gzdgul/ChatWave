@@ -11,6 +11,7 @@ import Chats from "./screens/Chats";
 import Chat from "./components/Chat";
 import {COLORS} from "./config/constants";
 import RegisterScreen from "./screens/RegisterScreen";
+import SetUpScreen from "./screens/SetUpScreen";
 
 const ChatsStack = createStackNavigator();
 const SettingsStack = createStackNavigator();
@@ -27,7 +28,7 @@ const ChatsScreen = () => {
 const SettingsScreen = () => {
     return (
         <SettingsStack.Navigator screenOptions={{ headerShown: true }} >
-            <SettingsStack.Screen name={'Settings'}  component={Settings}/>
+            <SettingsStack.Screen name={'Account Settings'}  component={Settings}/>
         </SettingsStack.Navigator>
     )
 }
@@ -39,7 +40,7 @@ const TabsScreen = () => (
             tabBarIcon: ({ focused, color, size }) => {
                 let iconName;
 
-                if (route.name === 'Messages') {
+                if (route.name === 'Home') {
                     iconName = focused
                         ? 'chatbubbles'
                         : 'chatbubbles-outline';
@@ -53,7 +54,7 @@ const TabsScreen = () => (
             tabBarActiveTintColor: COLORS.accent,
             tabBarInactiveTintColor: COLORS.gray,
         })}>
-        <Tabs.Screen name={'Messages'} component={ChatsScreen}/>
+        <Tabs.Screen name={'Home'} component={ChatsScreen}/>
         <Tabs.Screen name={'Settings'} component={SettingsScreen}/>
     </Tabs.Navigator>
 );
@@ -65,6 +66,7 @@ export default function App() {
                 <MainStack.Screen name={'Tabs'} component={TabsScreen}/>
                 <MainStack.Screen name={'Login'} component={LoginScreen}/>
                 <MainStack.Screen name={'Register'} component={RegisterScreen}/>
+                <MainStack.Screen name={'SetUp'} component={SetUpScreen}/>
             </MainStack.Navigator>
         </NavigationContainer>
     );

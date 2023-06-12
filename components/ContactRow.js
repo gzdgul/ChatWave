@@ -8,7 +8,8 @@ const ContactRow = ({name, subtitle, style, onPress}) => {
             <TouchableOpacity style={[styles.row, style]} onPress={onPress}>
                 <View style={styles.avatar}>
                     <Text style={styles.avatarLabel}>{
-                        name.split(' ').reduce((prev,current) => `${prev}${current[0]}`,'')}
+                        name?.split(' ').reduce((prev,current) => `${prev}${current[0]}`,'')
+                        }
                     </Text>
                 </View>
                 <View style={styles.userInfoText}>

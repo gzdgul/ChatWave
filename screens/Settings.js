@@ -5,20 +5,30 @@ import { COLORS } from "../config/constants";
 import {Ionicons} from "@expo/vector-icons";
 import CellButton from "../components/CellButton";
 import CellOptions from "../components/CellOptions";
+import { getAuth } from "firebase/auth";
 
-function Settings({navigation}) {
+import { useEffect, useState } from 'react';
+import useAuth from "../stores/useAuth";
+
+function Settings({ navigation }) {
+    // const [currentUser, setCurrentUser] = useState(null);
+    const currentUser = useAuth((state) => state.currentUser);
+
     return (
         <SafeAreaView style={styles.container}>
             <ContactRow
-                name={'Gözde Gül'}
-                subtitle={'gozde@test.com'}
+                name={currentUser.displayName}
+                subtitle={currentUser ? currentUser.email : ''}
                 style={styles.contactRow}
-                onPress={() => { alert('bu benim!!') }}
+                onPress={() => {
+                    console.warn(currentUser);
+                }}
             />
-            <CellOptions navigation={navigation}/>
+            <CellOptions navigation={navigation} />
         </SafeAreaView>
     );
 }
+
 
 const styles = StyleSheet.create({
     container: {
