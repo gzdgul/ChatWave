@@ -17,11 +17,11 @@ function Settings({ navigation }) {
     return (
         <SafeAreaView style={styles.container}>
             <ContactRow
-                name={currentUser?.displayName}
-                subtitle={currentUser ? currentUser.email : ''}
+                name={currentUser ? currentUser.email: 'bos'}
+                subtitle={currentUser ? currentUser.email : 'bos'}
                 style={styles.contactRow}
                 onPress={() => {
-                    console.warn(currentUser);
+                    // console.warn(currentUser);
                 }}
             />
             <CellOptions navigation={navigation} />

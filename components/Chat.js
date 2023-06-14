@@ -7,21 +7,21 @@ const Chat = ({route}) => {
     const [messages, setMessages] = useState([]);
     const currentUser = useAuth((state) => state?.currentUser);
 
-    console.warn('chatkey',route.params?.id)
+    // console.warn('chatkey',route.params?.id)
     // console.warn('mail',route?.params.mail)
     // console.warn(route.params.mail)
     // console.warn('MESSAGES',route.params?.messages)
     // console.warn('currentUserdisplayName',currentUser?.displayName)
     const userMail = route.params?.mail
     const messageRef = [currentUser.email,route.params?.mail].sort().join('')
-    console.warn(messageRef)
+    // console.warn(messageRef)
     // const messages = route.params.messages
     // const currentUserName = currentUser
 
     useEffect(() => {
         if (route.params?.messages) {
             const a = convertMessages([route.params?.messages])
-            console.warn('PPPPPPPPPPPPPPP',a)
+            // console.warn('PPPPPPPPPPPPPPP',a)
             // if ()
             setMessages(a)
         }
@@ -41,7 +41,7 @@ const Chat = ({route}) => {
                 messageRef
             );
             setMessages(previousMessages => GiftedChat.append(previousMessages, messages));
-            console.warn(messages);
+            // console.warn(messages);
         }
     }, []);
 

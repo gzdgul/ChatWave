@@ -7,6 +7,7 @@ import LoginScreen from "./LoginScreen";
 import {createChat, listenChats, listenChatss, snapshotToArray} from "../firebaseConfig";
 import useAuth from "../stores/useAuth";
 import {COLORS} from "../config/constants";
+import chat from "../components/Chat";
 
 function Chats({navigation}) {
     const [chats, setChats] = useState(
@@ -20,11 +21,11 @@ function Chats({navigation}) {
     const [modalVisible, setModalVisible] = useState(false);
     const [userMail, setUserMail] = useState('')
     // const ChatKey = currentUser?.email+userMail
-    console.warn('hhhhh', chats)
+    // console.warn('hhhhh', chats)
 
     const createConnection = () => {
         const messageRef = [currentUser.email,userMail.toLowerCase()].sort().join('')
-        console.warn(userMail.toLowerCase())
+        // console.warn(userMail.toLowerCase())
         createChat(userMail.toLowerCase(),messageRef)
         setModalVisible(!modalVisible)
     }
@@ -38,7 +39,7 @@ function Chats({navigation}) {
         if (currentUser !== null) {
             listenChatss(setChats)
         }
-    },[currentUser])
+    },[currentUser,chats])
 
     return (
         <SafeAreaView>
@@ -51,7 +52,7 @@ function Chats({navigation}) {
                                         navigation.navigate('Chat', {
                                             id: x.users.sort().join(''),
                                             mail: x.users.find((x) => x !== currentUser?.email),
-                                            messages: x.messages
+                                            messages: x.messages?.reverse()
                                         });
                                     }}/>
                     </React.Fragment>

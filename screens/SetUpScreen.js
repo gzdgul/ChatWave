@@ -14,7 +14,7 @@ import {
     Platform,
     ScrollView,
 } from 'react-native'
-import {createAccount, updateDisplayName} from "../firebaseConfig";
+import {createAccount, createUser, updateDisplayName} from "../firebaseConfig";
 import { COLORS } from "../config/constants";
 import Checkbox from 'expo-checkbox';
 import useAuth from "../stores/useAuth";
@@ -40,6 +40,11 @@ const SetUpScreen = ({ navigation, route }) => {
         if (password === cPass) {
             createAccount(route.params.email, password).then((user) => {
                 updateDisplayName(firstName+' '+lastName)
+                const userData = {
+                    id: route.params.email.toLowerCase(),
+                    name: (firstName+' '+lastName),
+                }
+                createUser(userData)
                 setCurrentUser(user)
                 alert('Success Register')
                 setTimeout(() => {

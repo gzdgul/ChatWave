@@ -1,19 +1,34 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
+import {getUser} from "../firebaseConfig";
 
 const ContactRow = ({name, subtitle, style, onPress}) => {
+    const [user,setUser] = useState({
+        name: 'null',
+        id: 'null',
+        }
+    )
+
+    useEffect(() => {
+        // setUser({
+        //     name: name,
+        //     id : 'null',
+        // })
+        getUser(name,setUser)
+    },[name])
+
     return (
         <>
             <TouchableOpacity style={[styles.row, style]} onPress={onPress}>
                 <View style={styles.avatar}>
                     <Text style={styles.avatarLabel}>{
-                        name?.split(' ').reduce((prev,current) => `${prev}${current[0]}`,'')
+                        user?.name.split(' ').reduce((prev,current) => `${prev}${current[0]}`,'')
                         }
                     </Text>
                 </View>
                 <View style={styles.userInfoText}>
-                    <Text style={styles.name}>{name}</Text>
+                    <Text style={styles.name}>{user?.name}</Text>
                     <Text style={styles.subtitle}>{subtitle}</Text>
                 </View>
                 <Ionicons name={'chevron-forward-outline'} size={20}/>

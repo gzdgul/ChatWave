@@ -7,7 +7,7 @@ import {
     signOut,
     updateProfile
 } from "firebase/auth";
-import {arrayUnion, collection, doc, getDoc, getDocs, addDoc, getFirestore, setDoc, updateDoc, onSnapshot, where} from "firebase/firestore";
+import {arrayUnion, collection, doc, getDoc, getDocs, addDoc, orderBy, getFirestore, setDoc, updateDoc, onSnapshot, where} from "firebase/firestore";
 import {getDatabase, onValue, push, ref, set, serverTimestamp, query, orderByChild, startAt,limitToFirst } from "firebase/database";
 import firebase from "firebase/compat";
 
@@ -70,6 +70,18 @@ export const updateDisplayName = async (displayName) => {
 export const createChat = async (userMail,messageRef) => {
     await setDoc(doc(db, "chats", messageRef), {
         users: [auth.currentUser.email,userMail],
+    });
+}
+export const createUser = async (userData) => {
+    await setDoc(doc(db, "users", userData.id), {
+        id: userData.id,
+        name: userData.name,
+    });
+}
+export const getUser = async (userId,setUser) => {
+    const unsub = onSnapshot(doc(db, "users", userId), (doc) => {
+        console.log("Current data: ", doc.data());
+        setUser(doc.data());
     });
 }
 // export const createChat = async (userEmail) => {
@@ -138,18 +150,19 @@ export const sendMessage = async (message, messageRef) => {
 // }
 export const listenChatss = (setChatMessages) => {
     const q = query(collection(db, "chats"),
-        where("users", 'array-contains', auth.currentUser?.email));
+        where("users", 'array-contains', auth.currentUser?.email)
+        // orderBy('createdAt','desc')
+        );
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
         const chatss = [];
         querySnapshot.forEach((doc) => {
-            console.warn('TESTTT',doc.data())
+            // console.warn('TESTTT',doc.data())
 
             chatss.push(doc.data());
         });
         setChatMessages(chatss); // Chat mesajlarını state'e yerleştir
     });
 };
-// console.warn('TESTTT',doc.data().users)
 
 export const snapshotToArray = (snapshot) => {
     const result = [];
