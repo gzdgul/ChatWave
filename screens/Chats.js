@@ -19,10 +19,13 @@ function Chats({navigation}) {
     const currentUser = useAuth((state) => state.currentUser);
     const [modalVisible, setModalVisible] = useState(false);
     const [userMail, setUserMail] = useState('')
-    const ChatKey = currentUser?.email+userMail
-    console.warn('AAAAAAA',currentUser?.email+userMail)
+    // const ChatKey = currentUser?.email+userMail
+    console.warn('hhhhh', chats)
+
     const createConnection = () => {
-        createChat(userMail)
+        const messageRef = [currentUser.email,userMail.toLowerCase()].sort().join('')
+        console.warn(userMail.toLowerCase())
+        createChat(userMail.toLowerCase(),messageRef)
         setModalVisible(!modalVisible)
     }
 
@@ -30,7 +33,6 @@ function Chats({navigation}) {
         if (!currentUser) {
             navigation.navigate('Login')
         }
-
     },[])
     useEffect(() => {
         if (currentUser !== null) {
@@ -42,11 +44,15 @@ function Chats({navigation}) {
         <SafeAreaView>
             {
                 chats?.map((x, index) => (
-                    <React.Fragment key={x.users.join('')}>
-                        <ContactRow name={x.users[1]}
+                    <React.Fragment key={x.users.sort().join('')}>
+                        <ContactRow name={x.users.find((x) => x !== currentUser?.email)}
                                     subtitle={'No messages yet'}
                                     onPress={() => {
-                                        navigation.navigate('Chat', {id: x.users.join(''),mail: x.users[1]});
+                                        navigation.navigate('Chat', {
+                                            id: x.users.sort().join(''),
+                                            mail: x.users.find((x) => x !== currentUser?.email),
+                                            messages: x.messages
+                                        });
                                     }}/>
                     </React.Fragment>
                 ))

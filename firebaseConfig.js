@@ -67,8 +67,8 @@ export const updateDisplayName = async (displayName) => {
     })
 }
 
-export const createChat = async (userMail) => {
-    await setDoc(doc(db, "chats", (auth.currentUser.email + userMail)), {
+export const createChat = async (userMail,messageRef) => {
+    await setDoc(doc(db, "chats", messageRef), {
         users: [auth.currentUser.email,userMail],
     });
 }
@@ -78,41 +78,51 @@ export const createChat = async (userMail) => {
 //         'users': [auth.currentUser.email, userEmail]
 //     })
 // }
-export const sendMessage  = async (message, userMail) => {
-    const chatRef = doc(db, "chats", auth.currentUser.email + userMail);
+export const sendMessage = async (message, messageRef) => {
+    const chatRef = doc(db, "chats", messageRef);
 
     const chatSnap = await getDoc(chatRef);
     if (chatSnap.exists()) {
         // Mevcut sohbet varsa, mesajları alın
         const chatData = chatSnap.data();
-        const messages = chatData.messages || {};
+        let messages = chatData.messages || [];
 
-        // Yeni mesajı mesajlar nesnesine ekleyin
-        messages[message._id] = {
-            _id: message._id,
-            createdAt: message.createdAt,
-            text: message.text,
-            user: message.user,
-        };
+        if (!Array.isArray(messages)) {
+            // Convert messages from object to array
+            messages = Object.values(messages);
+        }
+
+        // Yeni mesajı mesajlar dizisine ekleyin
+        const updatedMessages = [
+            ...messages,
+            {
+                _id: message._id,
+                createdAt: message.createdAt,
+                text: message.text,
+                user: message.user,
+            },
+        ];
 
         // Mesajları güncelleyin
-        await updateDoc(chatRef, { messages });
+        await updateDoc(chatRef, { messages: updatedMessages });
     } else {
         // Mevcut sohbet yoksa, yeni bir sohbet oluşturun
         const newChat = {
-            messages: {
-                [message._id]: {
+            messages: [
+                {
                     _id: message._id,
                     createdAt: message.createdAt,
                     text: message.text,
                     user: message.user,
                 },
-            },
+            ],
         };
 
         await setDoc(chatRef, newChat);
     }
 };
+
+
 
 //     export const setUserData = async (displayName, email) => {
 //         const {userdata} = await setDoc(doc(db, "users", auth.currentUser.uid), {
@@ -132,10 +142,9 @@ export const listenChatss = (setChatMessages) => {
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
         const chatss = [];
         querySnapshot.forEach((doc) => {
-            const messages = doc.data().messages;
-            Object.keys(messages).forEach((key) => {
-                chatss.push(messages[key]);
-            });
+            console.warn('TESTTT',doc.data())
+
+            chatss.push(doc.data());
         });
         setChatMessages(chatss); // Chat mesajlarını state'e yerleştir
     });

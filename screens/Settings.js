@@ -17,7 +17,7 @@ function Settings({ navigation }) {
     return (
         <SafeAreaView style={styles.container}>
             <ContactRow
-                name={currentUser.displayName}
+                name={currentUser?.displayName}
                 subtitle={currentUser ? currentUser.email : ''}
                 style={styles.contactRow}
                 onPress={() => {

@@ -5,49 +5,26 @@ import useAuth from "../stores/useAuth";
 
 const Chat = ({route}) => {
     const [messages, setMessages] = useState([]);
-    const currentUser = useAuth((state) => state.currentUser);
+    const currentUser = useAuth((state) => state?.currentUser);
 
-    console.warn('chatkey',route?.params.id)
+    console.warn('chatkey',route.params?.id)
+    // console.warn('mail',route?.params.mail)
     // console.warn(route.params.mail)
-    // console.warn(currentUser.email)
-    console.warn('currentUserdisplayName',currentUser?.displayName)
-    const userMail = route?.params.mail
+    // console.warn('MESSAGES',route.params?.messages)
+    // console.warn('currentUserdisplayName',currentUser?.displayName)
+    const userMail = route.params?.mail
+    const messageRef = [currentUser.email,route.params?.mail].sort().join('')
+    console.warn(messageRef)
+    // const messages = route.params.messages
     // const currentUserName = currentUser
 
     useEffect(() => {
-        // setMessages([
-        //     {
-        //         _id: 1,
-        //         text: 'Hello developergozde',
-        //         createdAt: new Date(),
-        //         user: {
-        //             _id: 'gozde@test.com',
-        //             name: 'React Native',
-        //             avatar: 'https://placeimg.com/140/140/any',
-        //         },
-        //     },
-        //     {
-        //         _id: 2,
-        //         text: 'Hello developer',
-        //         createdAt: new Date(),
-        //         user: {
-        //             _id: 'g@test.com',
-        //             name: 'React Native',
-        //             avatar: 'https://placeimg.com/140/140/any',
-        //         },
-        //     },
-        //     {
-        //         _id: 3,
-        //         text: 'Hello developeraaaaa',
-        //         createdAt: new Date(),
-        //         user: {
-        //             _id: 'g@test.com',
-        //             name: 'React Native',
-        //             avatar: 'https://placeimg.com/140/140/any',
-        //         },
-        //     },
-        // ])
-
+        if (route.params?.messages) {
+            const a = convertMessages([route.params?.messages])
+            console.warn('PPPPPPPPPPPPPPP',a)
+            // if ()
+            setMessages(a)
+        }
     }, [])
 
     const onSend = useCallback((messages = []) => {
@@ -56,19 +33,36 @@ const Chat = ({route}) => {
 
             sendMessage(
                 {
-                    _id: message._id,
-                    createdAt: message.createdAt,
-                    text: message.text,
-                    user: message.user,
+                    _id: message?._id,
+                    createdAt: message?.createdAt,
+                    text: message?.text,
+                    user: message?.user,
                 },
-                userMail
+                messageRef
             );
-
             setMessages(previousMessages => GiftedChat.append(previousMessages, messages));
             console.warn(messages);
         }
     }, []);
 
+    const convertMessages = (chatMessages) => {
+        const convertedMessages = [];
+
+        chatMessages[0].forEach((chat) => {
+            // console.warn('CHATTTTTTTTTTTTT',chat)
+            const convertedMessage = {
+                _id: chat._id,
+                text: chat.text,
+                createdAt: chat.createdAt.toDate(),
+                user: {
+                    _id: chat.user._id,
+                    name: chat.user.name,
+                },
+            };
+                convertedMessages.push(convertedMessage);
+        });
+        return convertedMessages;
+    };
 
     return (
         <GiftedChat
