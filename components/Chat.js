@@ -3,11 +3,14 @@ import { GiftedChat } from 'react-native-gifted-chat'
 import {sendMessage} from "../firebaseConfig";
 import useAuth from "../stores/useAuth";
 import useChatData from "../stores/useMessages";
+import {StyleSheet} from "react-native";
+import {COLORS} from "../config/constants";
 
 const Chat = ({route}) => {
     const [messages, setMessages] = useState([]);
     const currentUser = useAuth((state) => state?.currentUser);
     const chatData = useChatData((state) => state.chatData);
+    // const {setlastMessage} = route.params
     // const aa = chatData.find((x) => x.chatId === route.params?.id)
     // console.warn('chatkey',route.params?.id)
     // console.warn('mail',route?.params.mail)
@@ -25,6 +28,7 @@ const Chat = ({route}) => {
         // console.warn('Messages güncellendi:', aa);
         const a = convertMessages([aa])
         setMessages(a)
+        // setlastMessage(a[0]?.text ? a[0].text : 'No message yet')
     }, [chatData]);
 
     useEffect(() => {
@@ -56,7 +60,6 @@ const Chat = ({route}) => {
         const convertedMessages = [];
 
         chatMessages[0].forEach((chat) => {
-            // console.warn('CHATTTTTTTTTTTTT',chat)
             const convertedMessage = {
                 _id: chat._id,
                 text: chat.text,
@@ -73,6 +76,8 @@ const Chat = ({route}) => {
 
     return (
         <GiftedChat
+            messagesContainerStyle={styles.deneme}
+            // onInputTextChanged={this.onInputTextChanged}
             messages={messages}
             onSend={messages => onSend(messages)}
             user={{
@@ -82,5 +87,9 @@ const Chat = ({route}) => {
         />
     )
 }
-
+const styles = StyleSheet.create({
+    deneme: {
+       backgroundColor: COLORS.white
+    }
+});
 export default Chat;

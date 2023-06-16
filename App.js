@@ -12,16 +12,19 @@ import Chat from "./components/Chat";
 import {COLORS} from "./config/constants";
 import RegisterScreen from "./screens/RegisterScreen";
 import SetUpScreen from "./screens/SetUpScreen";
+import useSelectedUser from "./stores/useSelectedUser";
 
 const ChatsStack = createStackNavigator();
 const SettingsStack = createStackNavigator();
 const MainStack = createStackNavigator();
 const Tabs = createBottomTabNavigator();
-const ChatsScreen = () => {
+
+const ChatsScreen = ({route}) => {
+    const selectedUser = useSelectedUser((state) => state.selectedUser);
     return (
         <ChatsStack.Navigator screenOptions={{ headerShown: true }} >
             <ChatsStack.Screen name={'Chats'}  component={Chats}/>
-            <ChatsStack.Screen name={'Chat'}  component={Chat}/>
+            <ChatsStack.Screen name={'Chat'}  component={Chat} options={{ title:selectedUser ? selectedUser : 'chat' }}/>
         </ChatsStack.Navigator>
     )
 }
@@ -33,7 +36,7 @@ const SettingsScreen = () => {
     )
 }
 
-const TabsScreen = () => (
+const TabsScreen = ({route}) => (
     <Tabs.Navigator screenOptions={
         ({ route }) => ({
             headerShown: false,

@@ -9,6 +9,7 @@ import useAuth from "../stores/useAuth";
 import {COLORS} from "../config/constants";
 import chat from "../components/Chat";
 import useChatData from "../stores/useMessages";
+import useSelectedUser from "../stores/useSelectedUser";
 
 function Chats({navigation}) {
     const [chats, setChats] = useState(
@@ -22,6 +23,8 @@ function Chats({navigation}) {
     const setChatData = useChatData((state) => state.setChatData);
     const [modalVisible, setModalVisible] = useState(false);
     const [userMail, setUserMail] = useState('')
+    const [lastMessage,setlastMessage] = useState('No message')
+
     // const ChatKey = currentUser?.email+userMail
     // console.warn('hhhhh', chats)
 
@@ -45,14 +48,12 @@ function Chats({navigation}) {
 
     useEffect(() => {
         chats.forEach((x) => {
-            // console.warn('TESTTTTTTTTTTTTTTTTT',x)
-            // console.warn('TESTT_ID',x.users.sort().join(''))
-            // console.warn('TESTT_MESS',x.messages?.reverse())
             setChatData({
                 chatId: x.users.sort().join(''),
                 messages:(x.messages ?  x.messages?.reverse() : [])
             })
         })
+
     },[chats])
 
     return (
@@ -61,14 +62,10 @@ function Chats({navigation}) {
                 chats?.map((x, index) => (
                     <React.Fragment key={x.users.sort().join('')}>
                         <ContactRow name={x.users.find((x) => x !== currentUser?.email)}
-                                    subtitle={'No messages yet'}
-                                    onPress={() => {
-                                        navigation.navigate('Chat', {
-                                            id: x.users.sort().join(''),
-                                            mail: x.users.find((x) => x !== currentUser?.email),
-                                            messages: x.messages
-                                        });
-                                    }}/>
+                                    chatData={x}
+                                    // setlastMessage={x.messages?.length === 0 ? 'NMY' : 'aaaaaaaaaaa'}
+                                    subtitle={!x.messages ? 'NMY' : [...x.messages].reverse()[0].text}
+                                    navigation={navigation}/>
                     </React.Fragment>
                 ))
             }

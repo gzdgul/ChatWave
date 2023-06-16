@@ -10,6 +10,7 @@ import {
 import {arrayUnion, collection, doc, getDoc, getDocs, addDoc, orderBy, getFirestore, setDoc, updateDoc, onSnapshot, where} from "firebase/firestore";
 import {getDatabase, onValue, push, ref, set, serverTimestamp, query, orderByChild, startAt,limitToFirst } from "firebase/database";
 import firebase from "firebase/compat";
+import {COLORS} from "./config/constants";
 
 
 
@@ -72,10 +73,13 @@ export const createChat = async (userMail,messageRef) => {
         users: [auth.currentUser.email,userMail],
     });
 }
+
 export const createUser = async (userData) => {
+    const colorNum = Math.floor(Math.random() * 8) + 1
     await setDoc(doc(db, "users", userData.id), {
         id: userData.id,
         name: userData.name,
+        colorNum: colorNum
     });
 }
 export const getUser = async (userId,setUser) => {
@@ -84,12 +88,6 @@ export const getUser = async (userId,setUser) => {
         setUser(doc.data());
     });
 }
-// export const createChat = async (userEmail) => {
-//     // const a = ref(database, 'chats',);
-//     push(chatsDatabaseRef, {
-//         'users': [auth.currentUser.email, userEmail]
-//     })
-// }
 export const sendMessage = async (message, messageRef) => {
     const chatRef = doc(db, "chats", messageRef);
 
@@ -134,33 +132,32 @@ export const sendMessage = async (message, messageRef) => {
     }
 };
 
-
-
-//     export const setUserData = async (displayName, email) => {
-//         const {userdata} = await setDoc(doc(db, "users", auth.currentUser.uid), {
-//             userID: auth.currentUser.uid,
-//             displayName: displayName,
-//             email: email,
-//         });
-//         return userdata;
-//     }
-// }
-// export const listenChats =  (snapshotFunc) => {
-//     onValue(chatsDatabaseRef, snapshotFunc);
-// }
 export const listenChatss = (setChatMessages) => {
-    const q = query(collection(db, "chats"),
-        where("users", 'array-contains', auth.currentUser?.email));
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-        const chatss = [];
-        querySnapshot.forEach((doc) => {
-            // console.warn('TESTTT',doc.data())
+    const q = query(
+        collection(db, "chats"),
+        where("users", "array-contains", auth.currentUser?.email)
+    );
 
-            chatss.push(doc.data());
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        const chatss = querySnapshot.docs.map((doc) => doc.data());
+
+        chatss.forEach((chat) => {
+            if (chat?.messages) {
+                chat?.messages.sort((a, b) => a.createdAt - b.createdAt);
+            }
         });
+
+        chatss.sort((a, b) => {
+            const latestMessageA = a.messages?.[a.messages.length - 1];
+            const latestMessageB = b.messages?.[b.messages.length - 1];
+            return latestMessageB?.createdAt - latestMessageA?.createdAt;
+        });
+
         setChatMessages(chatss); // Chat mesajlarını state'e yerleştir
     });
 };
+
+
 
 export const snapshotToArray = (snapshot) => {
     const result = [];
