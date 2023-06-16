@@ -8,6 +8,7 @@ import {createChat, listenChats, listenChatss, snapshotToArray} from "../firebas
 import useAuth from "../stores/useAuth";
 import {COLORS} from "../config/constants";
 import chat from "../components/Chat";
+import useChatData from "../stores/useMessages";
 
 function Chats({navigation}) {
     const [chats, setChats] = useState(
@@ -18,6 +19,7 @@ function Chats({navigation}) {
     )
     const [isLoggedIn, setIsLoggedIn] = useState(false)
     const currentUser = useAuth((state) => state.currentUser);
+    const setChatData = useChatData((state) => state.setChatData);
     const [modalVisible, setModalVisible] = useState(false);
     const [userMail, setUserMail] = useState('')
     // const ChatKey = currentUser?.email+userMail
@@ -39,7 +41,19 @@ function Chats({navigation}) {
         if (currentUser !== null) {
             listenChatss(setChats)
         }
-    },[currentUser,chats])
+    },[currentUser])
+
+    useEffect(() => {
+        chats.forEach((x) => {
+            // console.warn('TESTTTTTTTTTTTTTTTTT',x)
+            // console.warn('TESTT_ID',x.users.sort().join(''))
+            // console.warn('TESTT_MESS',x.messages?.reverse())
+            setChatData({
+                chatId: x.users.sort().join(''),
+                messages:(x.messages ?  x.messages?.reverse() : [])
+            })
+        })
+    },[chats])
 
     return (
         <SafeAreaView>
@@ -52,7 +66,7 @@ function Chats({navigation}) {
                                         navigation.navigate('Chat', {
                                             id: x.users.sort().join(''),
                                             mail: x.users.find((x) => x !== currentUser?.email),
-                                            messages: x.messages?.reverse()
+                                            messages: x.messages
                                         });
                                     }}/>
                     </React.Fragment>

@@ -150,9 +150,7 @@ export const sendMessage = async (message, messageRef) => {
 // }
 export const listenChatss = (setChatMessages) => {
     const q = query(collection(db, "chats"),
-        where("users", 'array-contains', auth.currentUser?.email)
-        // orderBy('createdAt','desc')
-        );
+        where("users", 'array-contains', auth.currentUser?.email));
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
         const chatss = [];
         querySnapshot.forEach((doc) => {

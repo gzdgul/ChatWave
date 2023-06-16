@@ -11,10 +11,6 @@ const ContactRow = ({name, subtitle, style, onPress}) => {
     )
 
     useEffect(() => {
-        // setUser({
-        //     name: name,
-        //     id : 'null',
-        // })
         getUser(name,setUser)
     },[name])
 
