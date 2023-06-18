@@ -13,6 +13,8 @@ import {COLORS} from "./config/constants";
 import RegisterScreen from "./screens/RegisterScreen";
 import SetUpScreen from "./screens/SetUpScreen";
 import useSelectedUser from "./stores/useSelectedUser";
+import userPlus from "./assets/userplus.png";
+import useModal from "./stores/useModal";
 
 const ChatsStack = createStackNavigator();
 const SettingsStack = createStackNavigator();
@@ -21,10 +23,27 @@ const Tabs = createBottomTabNavigator();
 
 const ChatsScreen = ({route}) => {
     const selectedUser = useSelectedUser((state) => state.selectedUser);
+    const setModalStatus = useModal((state) => state.setModalStatus);
+    const modalStatus = useModal((state) => state.modalStatus);
+    const handlePlusPress = () => {
+        setModalStatus(true)
+    }
     return (
-        <ChatsStack.Navigator screenOptions={{ headerShown: true }} >
-            <ChatsStack.Screen name={'Chats'}  component={Chats}/>
-            <ChatsStack.Screen name={'Chat'}  component={Chat} options={{ title:selectedUser ? selectedUser : 'chat' }}/>
+        <ChatsStack.Navigator screenOptions={{ headerShown: true }}  >
+            <ChatsStack.Screen name={'Mesajlar'}  component={Chats} options={{
+                headerStyle: { backgroundColor: COLORS.backgroundClr },
+                headerTitleStyle: { fontSize: 30, color: COLORS.inputColor },
+                // İstediğiniz font büyüklüğünü burada belirleyebilirsiniz
+                headerRight: () => (
+                    <View style={{ marginRight: 20 }}>
+                        <Text style={styles.plus} onPress={handlePlusPress}>+</Text>
+                    </View>
+                ),
+            }}/>
+            <ChatsStack.Screen name={'Chat'}  component={Chat} options={{
+                title: selectedUser ? selectedUser : 'chat',
+                headerStyle: { backgroundColor: 'red' },
+            }}/>
         </ChatsStack.Navigator>
     )
 }
@@ -57,7 +76,7 @@ const TabsScreen = ({route}) => (
             tabBarActiveTintColor: COLORS.accent,
             tabBarInactiveTintColor: COLORS.gray,
         })}>
-        <Tabs.Screen name={'Home'} component={ChatsScreen}/>
+        <Tabs.Screen name={'Home'} component={ChatsScreen} />
         <Tabs.Screen name={'Settings'} component={SettingsScreen}/>
     </Tabs.Navigator>
 );
@@ -76,6 +95,11 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
+    plus: {
+        fontSize: 40,
+        fontWeight: "200",
+        color: COLORS.orange,
+    },
     tabBar: {
         display: 'flex',
         backgroundColor: '#fff',

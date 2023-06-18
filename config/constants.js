@@ -9,7 +9,7 @@ export const COLORS = {
     green: '#87d214',
     succesClr: '#38a35a',
     pink: '#f55bad',
-    inputColor: '#404040',
+    inputColor: '#707070',
     nactiveButtonClr: '#a5a5a5',
     boncuk: '#EFEFEF',
     pudra: '#f88a99',
@@ -20,5 +20,8 @@ export const COLORS = {
     babyFire: '#FFA07A',
     pig: '#e3506c',
     babyBlue: '#4d9bb4',
+    backgroundClr: '#ededed',
+    activeClr: '#78faab',
+    orange: '#ff9100',
     // inputColor: '#404040',
 }

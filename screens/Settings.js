@@ -20,9 +20,7 @@ function Settings({ navigation }) {
                 name={currentUser ? currentUser.email: 'bos'}
                 subtitle={currentUser ? currentUser.email : 'bos'}
                 style={styles.contactRow}
-                onPress={() => {
-                    // console.warn(currentUser);
-                }}
+                page={'settings'}
             />
             <CellOptions navigation={navigation} />
         </SafeAreaView>

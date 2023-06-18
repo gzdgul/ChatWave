@@ -33,7 +33,13 @@ const database = getDatabase(app);
 // const chatsDatabaseRef = ref(db, 'chats');
 const chatsDatabaseRef = ref(database, 'chats');
 
-
+// export const setTyping = async (userMail, status) => {
+//     return await set(ref(database, 'typing/' + userMail + '/ '+ auth.currentUser.uid), {
+//         'typerID': auth.currentUser.uid,
+//         'recieverID': userMail,
+//         'status': status,
+//     })
+// }
 // Yeni kullanıcı oluşturma
 export const createAccount = async (email, password) => {
     const {user} = await createUserWithEmailAndPassword(auth, email, password)
@@ -71,6 +77,15 @@ export const updateDisplayName = async (displayName) => {
 export const createChat = async (userMail,messageRef) => {
     await setDoc(doc(db, "chats", messageRef), {
         users: [auth.currentUser.email,userMail],
+    });
+}
+export const setChatStatus = async (messageRef, unread, archive) => {
+    await updateDoc(doc(db, "chats", messageRef), {
+        status: {
+            unread: unread,
+            lastTyper: auth.currentUser.email,
+            archive: archive
+        },
     });
 }
 
@@ -130,6 +145,7 @@ export const sendMessage = async (message, messageRef) => {
 
         await setDoc(chatRef, newChat);
     }
+    setChatStatus(messageRef,true,false)
 };
 
 export const listenChatss = (setChatMessages) => {
@@ -143,16 +159,15 @@ export const listenChatss = (setChatMessages) => {
 
         chatss.forEach((chat) => {
             if (chat?.messages) {
-                chat?.messages.sort((a, b) => a.createdAt - b.createdAt);
+                chat?.messages.sort((a, b) => b.createdAt - a.createdAt);
             }
         });
 
         chatss.sort((a, b) => {
-            const latestMessageA = a.messages?.[a.messages.length - 1];
-            const latestMessageB = b.messages?.[b.messages.length - 1];
+            const latestMessageA = a.messages?.[0];
+            const latestMessageB = b.messages?.[0];
             return latestMessageB?.createdAt - latestMessageA?.createdAt;
         });
-
         setChatMessages(chatss); // Chat mesajlarını state'e yerleştir
     });
 };

@@ -10,6 +10,7 @@ import {COLORS} from "../config/constants";
 import chat from "../components/Chat";
 import useChatData from "../stores/useMessages";
 import useSelectedUser from "../stores/useSelectedUser";
+import useModal from "../stores/useModal";
 
 function Chats({navigation}) {
     const [chats, setChats] = useState(
@@ -20,6 +21,8 @@ function Chats({navigation}) {
     )
     const [isLoggedIn, setIsLoggedIn] = useState(false)
     const currentUser = useAuth((state) => state.currentUser);
+    const modalStatus = useModal((state) => state.modalStatus);
+    const setModalStatus = useModal((state) => state.setModalStatus);
     const setChatData = useChatData((state) => state.setChatData);
     const [modalVisible, setModalVisible] = useState(false);
     const [userMail, setUserMail] = useState('')
@@ -32,7 +35,7 @@ function Chats({navigation}) {
         const messageRef = [currentUser.email,userMail.toLowerCase()].sort().join('')
         // console.warn(userMail.toLowerCase())
         createChat(userMail.toLowerCase(),messageRef)
-        setModalVisible(!modalVisible)
+        setModalStatus(false)
     }
 
     useEffect(() => {
@@ -50,61 +53,69 @@ function Chats({navigation}) {
         chats.forEach((x) => {
             setChatData({
                 chatId: x.users.sort().join(''),
-                messages:(x.messages ?  x.messages?.reverse() : [])
+                messages:(x.messages ?  x.messages : [])
             })
         })
 
     },[chats])
 
     return (
-        <SafeAreaView>
+        <SafeAreaView style={styles.area}>
             {
                 chats?.map((x, index) => (
                     <React.Fragment key={x.users.sort().join('')}>
-                        <ContactRow name={x.users.find((x) => x !== currentUser?.email)}
+                        <ContactRow
+                                    id={x.users.sort().join('')}
+                                    name={x.users.find((x) => x !== currentUser?.email)}
                                     chatData={x}
-                                    // setlastMessage={x.messages?.length === 0 ? 'NMY' : 'aaaaaaaaaaa'}
-                                    subtitle={!x.messages ? 'NMY' : [...x.messages].reverse()[0].text}
-                                    navigation={navigation}/>
+                                    status={x?.status}
+                                    subtitle={!x.messages ? 'No message yet' : [...x.messages][0].text}
+                                    navigation={navigation}
+                                    page={'chats'}
+                                    />
                     </React.Fragment>
                 ))
             }
             <Modal
                 animationType="slide"
                 transparent={true}
-                visible={modalVisible}
+                visible={modalStatus}
                 onRequestClose={() => {
                     // Alert.alert('Modal has been closed.');
-                    setModalVisible(!modalVisible);
+                    setModalVisible(!modalStatus);
                 }}>
                 <View style={styles.centeredView}>
                     <View style={styles.modalView}>
-                        {/*<Text style={styles.modalText}>Hello World!</Text>*/}
                         <TextInput style={styles.input}
                                    value={userMail}
                                    onChangeText={text => setUserMail(text)}
                         ></TextInput>
                         <Pressable
                             style={[styles.button, styles.buttonClose]}
-                            onPress={() => setModalVisible(!modalVisible)}>
+                            onPress={() => setModalStatus(!modalStatus)}>
                             <Text style={styles.textStyle}
                                   onPress={createConnection}
                             >
                                 Create
                             </Text>
+                            <Text style={styles.textStyle}
+                                  onPress={() => { setModalStatus(false)}}
+                            >
+                                X
+                            </Text>
                         </Pressable>
                     </View>
                 </View>
             </Modal>
-            <Pressable
-                style={[styles.button, styles.buttonOpen]}
-                onPress={() => setModalVisible(true)}>
-                <Text style={styles.textStyle}>CREATE CHAT</Text>
-            </Pressable>
         </SafeAreaView>
     );
 }
 const styles = StyleSheet.create({
+    area: {
+        flex: 1,
+        backgroundColor: COLORS.backgroundClr,
+        paddingTop: 10,
+    },
     centeredView: {
         flex: 1,
         justifyContent: 'center',

@@ -1,31 +1,24 @@
 import React, { useState, useCallback, useEffect } from 'react'
 import { GiftedChat } from 'react-native-gifted-chat'
-import {sendMessage} from "../firebaseConfig";
+import {sendMessage, setTyping} from "../firebaseConfig";
 import useAuth from "../stores/useAuth";
 import useChatData from "../stores/useMessages";
 import {StyleSheet} from "react-native";
 import {COLORS} from "../config/constants";
+import TypingIndicator from "./TypingIndicator";
 
 const Chat = ({route}) => {
     const [messages, setMessages] = useState([]);
     const currentUser = useAuth((state) => state?.currentUser);
     const chatData = useChatData((state) => state.chatData);
-    // const {setlastMessage} = route.params
-    // const aa = chatData.find((x) => x.chatId === route.params?.id)
-    // console.warn('chatkey',route.params?.id)
-    // console.warn('mail',route?.params.mail)
-    // console.warn(route.params.mail)
-    // console.warn('MESSAGES',route.params?.messages)
-    // console.warn('currentUserdisplayName',currentUser?.displayName)
     const userMail = route.params?.mail
     const messageRef = [currentUser.email,route.params?.mail].sort().join('')
-    // console.warn(messageRef)
-    // const messages = route.params.messages
-    // const currentUserName = currentUser
+    const [isTyping, setIsTyping] = useState(false);
+
+
     useEffect(() => {
         const aa = chatData.find((x) => x.chatId === route.params?.id).messages
         // Her messages güncellendiğinde yapılacak işlemler
-        // console.warn('Messages güncellendi:', aa);
         const a = convertMessages([aa])
         setMessages(a)
         // setlastMessage(a[0]?.text ? a[0].text : 'No message yet')
@@ -73,11 +66,31 @@ const Chat = ({route}) => {
         });
         return convertedMessages;
     };
+    const handleInputTextChanged = text => {
+        setIsTyping(text.length > 0);
+
+    };
+    // useEffect(() => {
+    //     if (isTyping){
+    //         setTyping(route.params?.mail, true)
+    //         console.warn(route.params?.mail, true)
+    //     }
+    //     else  setTyping('aaaaaaaaaaaaaaa', false)
+    //
+    // },[isTyping])
+
+    const renderFooter = () => {
+        if (isTyping) {
+            return <TypingIndicator />;
+        }
+        return null;
+    };
 
     return (
         <GiftedChat
             messagesContainerStyle={styles.deneme}
-            // onInputTextChanged={this.onInputTextChanged}
+            onInputTextChanged={handleInputTextChanged}
+            // renderFooter={renderFooter}
             messages={messages}
             onSend={messages => onSend(messages)}
             user={{
