@@ -1,5 +1,15 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text, SafeAreaView, TouchableOpacity, StyleSheet, Pressable, Modal, TextInput} from "react-native";
+import {
+    View,
+    Text,
+    SafeAreaView,
+    TouchableOpacity,
+    StyleSheet,
+    Pressable,
+    Modal,
+    TextInput,
+    ScrollView
+} from "react-native";
 import {Ionicons} from '@expo/vector-icons'
 import ContactRow from "../components/ContactRow";
 // import SignUp from "./SignUp";
@@ -35,6 +45,13 @@ function Chats({navigation}) {
         const messageRef = [currentUser.email,userMail.toLowerCase()].sort().join('')
         // console.warn(userMail.toLowerCase())
         createChat(userMail.toLowerCase(),messageRef)
+        //     .then(() => {
+        //     navigation.navigate('Chat', {
+        //         id: chatData.users.sort().join(''),
+        //         mail: chatData.users.find((x) => x !== currentUser?.email),
+        //         messages: chatData.messages,
+        //     });
+        // })
         setModalStatus(false)
     }
 
@@ -60,7 +77,10 @@ function Chats({navigation}) {
     },[chats])
 
     return (
-        <SafeAreaView style={styles.area}>
+        <ScrollView style={styles.area}>
+            <View style={styles.banner}>
+                <Text style={styles.bannerText}>Mesajlar</Text>
+            </View>
             {
                 chats?.map((x, index) => (
                     <React.Fragment key={x.users.sort().join('')}>
@@ -81,40 +101,56 @@ function Chats({navigation}) {
                 transparent={true}
                 visible={modalStatus}
                 onRequestClose={() => {
-                    // Alert.alert('Modal has been closed.');
                     setModalVisible(!modalStatus);
                 }}>
                 <View style={styles.centeredView}>
                     <View style={styles.modalView}>
+                        <Text style={styles.modalText}>Enter User's Email</Text>
                         <TextInput style={styles.input}
                                    value={userMail}
                                    onChangeText={text => setUserMail(text)}
                         ></TextInput>
-                        <Pressable
-                            style={[styles.button, styles.buttonClose]}
-                            onPress={() => setModalStatus(!modalStatus)}>
-                            <Text style={styles.textStyle}
-                                  onPress={createConnection}
-                            >
-                                Create
-                            </Text>
-                            <Text style={styles.textStyle}
-                                  onPress={() => { setModalStatus(false)}}
-                            >
-                                X
-                            </Text>
-                        </Pressable>
+                       <View style={styles.modalOpt}>
+                           <TouchableOpacity
+                               style={[styles.button, styles.buttonClose]}
+                               onPress={() => setModalStatus(!modalStatus)}>
+                               <Text style={styles.textStyle}
+                                     onPress={createConnection}
+                               >
+                                   Create
+                               </Text>
+                           </TouchableOpacity>
+                           <TouchableOpacity
+                               style={[styles.crossButton, styles.buttonClose]}
+                               onPress={() => setModalStatus(!modalStatus)}>
+                               <Text style={styles.cross}
+                                     onPress={() => { setModalStatus(false)}}
+                               >
+                                   X
+                               </Text>
+                           </TouchableOpacity>
+                       </View>
                     </View>
                 </View>
             </Modal>
-        </SafeAreaView>
+            <View style={styles.footerView}>
+                <Text style={styles.footerText}>Lorem ipsum dolor sit amet, consectetur</Text>
+            </View>
+        </ScrollView>
     );
 }
 const styles = StyleSheet.create({
     area: {
         flex: 1,
         backgroundColor: COLORS.backgroundClr,
-        paddingTop: 10,
+        // paddingVertical: 25,
+    },
+    bannerText: {
+        fontSize: 33,
+        color: COLORS.black,
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        fontWeight: '700'
     },
     centeredView: {
         flex: 1,
@@ -125,42 +161,71 @@ const styles = StyleSheet.create({
     modalView: {
         margin: 20,
         backgroundColor: 'white',
-        borderRadius: 20,
-        padding: 35,
+        borderRadius: 10,
+        padding: 25,
         alignItems: 'center',
         shadowColor: '#000',
         shadowOffset: {
             width: 0,
             height: 2,
         },
-        shadowOpacity: 0.25,
+        shadowOpacity: 0.15,
         shadowRadius: 4,
         elevation: 5,
+        gap: 10,
     },
     button: {
+        borderRadius: 10,
+        padding: 6,
+        width: '80%',
+        backgroundColor: COLORS.orange
+    },
+    crossButton: {
+        width: 30,
         borderRadius: 20,
-        padding: 10,
-        elevation: 2,
-    },
-    buttonOpen: {
-        backgroundColor: '#F194FF',
-    },
-    buttonClose: {
-        backgroundColor: '#2196F3',
+        padding: 6,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: 'red'
     },
     textStyle: {
         color: 'white',
         fontWeight: 'bold',
         textAlign: 'center',
     },
-    modalText: {
-        marginBottom: 15,
+    cross: {
+        color: 'white',
+        fontWeight: 'bold',
         textAlign: 'center',
     },
+    modalText: {
+        fontSize: 16,
+        textAlign: 'center',
+        fontWeight: '500'
+    },
+    modalOpt: {
+      flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 10,
+        marginTop: 10,
+    },
     input: {
-        width: 200,
-        backgroundColor: COLORS.inputColor,
-        color: COLORS.white
+        width: 250,
+        borderBottomWidth: 1,
+        borderBottomColor: COLORS.orange,
+        color: COLORS.black,
+        paddingVertical: 5,
+    },
+    footerView: {
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "center",
+        paddingVertical: 20
+    },
+    footerText: {
+        fontSize: 12,
+        color: COLORS.ash
     }
 });
 

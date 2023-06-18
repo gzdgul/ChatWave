@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import {Button, SafeAreaView, StyleSheet, Text, View} from 'react-native';
+import {Button, SafeAreaView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import { NavigationContainer } from "@react-navigation/native";
 import {createNativeStackNavigator} from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -32,16 +32,22 @@ const ChatsScreen = ({route}) => {
         <ChatsStack.Navigator screenOptions={{ headerShown: true }}  >
             <ChatsStack.Screen name={'Mesajlar'}  component={Chats} options={{
                 headerStyle: { backgroundColor: COLORS.backgroundClr },
-                headerTitleStyle: { fontSize: 30, color: COLORS.inputColor },
+                headerTitleStyle: { display: "none" },
+                // headerTitleStyle: { fontSize: 30, color: COLORS.inputColor },
                 // İstediğiniz font büyüklüğünü burada belirleyebilirsiniz
+                headerLeft: () => (
+                    <TouchableOpacity style={{ marginLeft: 20 }}>
+                        <Text style={styles.editText}>Düzenle</Text>
+                    </TouchableOpacity>
+                ),
                 headerRight: () => (
-                    <View style={{ marginRight: 20 }}>
+                    <TouchableOpacity style={{ marginRight: 20 }}>
                         <Text style={styles.plus} onPress={handlePlusPress}>+</Text>
-                    </View>
+                    </TouchableOpacity>
                 ),
             }}/>
             <ChatsStack.Screen name={'Chat'}  component={Chat} options={{
-                title: selectedUser ? selectedUser : 'chat',
+                title: selectedUser ? selectedUser.name : 'chat',
                 headerStyle: { backgroundColor: 'red' },
             }}/>
         </ChatsStack.Navigator>
@@ -98,6 +104,10 @@ const styles = StyleSheet.create({
     plus: {
         fontSize: 40,
         fontWeight: "200",
+        color: COLORS.orange,
+    },
+    editText: {
+        fontSize: 15,
         color: COLORS.orange,
     },
     tabBar: {

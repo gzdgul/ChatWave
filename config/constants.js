@@ -20,8 +20,9 @@ export const COLORS = {
     babyFire: '#FFA07A',
     pig: '#e3506c',
     babyBlue: '#4d9bb4',
-    backgroundClr: '#ededed',
+    backgroundClr: '#ffffff',
     activeClr: '#78faab',
     orange: '#ff9100',
+    line: '#f3f3f3'
     // inputColor: '#404040',
 }

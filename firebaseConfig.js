@@ -88,6 +88,22 @@ export const setChatStatus = async (messageRef, unread, archive) => {
         },
     });
 }
+export const setNotificationStatus = async (messageRef, unread) => {
+    const docRef = doc(db, "chats", messageRef);
+    const docSnapshot = await getDoc(docRef);
+
+    if (docSnapshot.exists()) {
+        const { lastTyper, archive } = docSnapshot.data().status;
+
+        await updateDoc(docRef, {
+            status: {
+                unread: unread,
+                lastTyper: lastTyper, // Mevcut değeri koruyun
+                archive: archive // Mevcut değeri koruyun
+            },
+        });
+    }
+}
 
 export const createUser = async (userData) => {
     const colorNum = Math.floor(Math.random() * 8) + 1

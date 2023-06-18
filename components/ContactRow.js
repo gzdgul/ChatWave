@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {StyleSheet, Text, TextBase, TouchableOpacity, View} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
-import {getUser, setChatStatus} from "../firebaseConfig";
+import {getUser, setChatStatus, setNotificationStatus} from "../firebaseConfig";
 import useAuth from "../stores/useAuth";
 import useSelectedUser from "../stores/useSelectedUser";
 import {COLORS} from "../config/constants";
@@ -17,16 +17,29 @@ const ContactRow = ({id, name, subtitle, style, chatData, navigation, status, pa
         }
     )
     const handlePress = () => {
-        navigation.navigate('Chat', {
-            id: chatData.users.sort().join(''),
-            mail: chatData.users.find((x) => x !== currentUser?.email),
-            messages: chatData.messages,
-        });
-        setSelectedUser(user?.name)
-        if (status?.lastTyper !== currentUser.email){
-            setChatStatus(id,false,false)
-            setNotification(false)
+        if (page !== 'settings') {
+            navigation.navigate('Chat', {
+                id: chatData.users.sort().join(''),
+                mail: chatData.users.find((x) => x !== currentUser?.email),
+                messages: chatData.messages,
+            });
+
+            navigation.setOptions({
+                setNotification: setNotification,
+            });
+
+            setSelectedUser(
+                {
+                    name: user?.name,
+                    email: user?.id
+                }
+            )
+            if (status?.lastTyper !== currentUser.email) {
+                setNotificationStatus(id, false)
+                setNotification(false)
+            }
         }
+        else alert('çözdümmmm istediğin kadar basss')
     }
     useEffect(() => {
         getUser(name,setUser)
@@ -37,8 +50,10 @@ const ContactRow = ({id, name, subtitle, style, chatData, navigation, status, pa
             if ( status?.lastTyper !== currentUser.email) {
                 setNotification(true)
             }
+            else setNotification(false)
         }
-    },[name,status?.unread])
+        else setNotification(false)
+    },[name,status])
     const colorCreator = (colorNum) => {
         switch (colorNum) {
             case 1:return COLORS.pudra;
@@ -69,11 +84,14 @@ const ContactRow = ({id, name, subtitle, style, chatData, navigation, status, pa
                     </Text>
                 </View>
                 <View style={styles.userInfoText}>
-                    <Text style={[styles.name, notification && { color: COLORS.orange,  fontWeight: "600"}]}>{user?.name}</Text>
+                    <Text style={[styles.name, notification && { color: COLORS.orange,  fontWeight: "700"}]}>{user?.name}</Text>
                     <Text style={styles.subtitle}>{subtitle}</Text>
                 </View>
-                <Ionicons name={'chevron-forward-outline'} style={ notification && { color: COLORS.orange}} size={20}/>
+                <Ionicons name={'chevron-forward-outline'} style={ notification ? { color: COLORS.orange} : { color: COLORS.ash} } size={20}/>
             </TouchableOpacity>
+           <View style={styles.lineCont}>
+               <View style={styles.line}></View>
+           </View>
         </>
     );
 };
@@ -90,31 +108,32 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: COLORS.white,
         paddingHorizontal: 10,
-        paddingVertical: 12,
-        marginVertical: 5,
-        marginHorizontal: 16,
-        borderRadius: 20,
-        shadowOffset: { width: 0, height: 2 },
-        shadowColor: COLORS.black,
-        shadowOpacity: 0.10,
-        shadowRadius: 4,
-        elevation: 3,
+        paddingVertical: 10,
+        marginVertical: 1,
+        marginHorizontal: 0,
+        borderRadius: 0,
+        // borderBottomWidth: 1,
+        // borderBottomColor: COLORS.ash
+        // shadowOffset: { width: 0, height: 2 },
+        // shadowColor: COLORS.black,
+        // shadowOpacity: 0.10,
+        // shadowRadius: 4,
+        // elevation: 3,
     },
     indicator: {
-        width: 6,
+        width: 4,
         height: 40,
         backgroundColor: COLORS.ash,
         borderRadius: 10,
         marginRight: 10,
-
     },
     userInfoText: {
         flex: 1,
         marginStart: 16,
     },
     name: {
-        fontSize: 20,
-        fontWeight: "400",
+        fontSize: 16,
+        fontWeight: "600",
         color: '#3b3b3b'
     },
     subtitle: {
@@ -123,8 +142,8 @@ const styles = StyleSheet.create({
         fontSize: 14,
     },
     avatar: {
-        width: 56,
-        height: 56,
+        width: 52,
+        height: 52,
         borderRadius: 15,
         justifyContent: 'center',
         alignItems: 'center',
@@ -134,6 +153,8 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.25,
         shadowRadius: 4,
         elevation: 3,
+        borderWidth: 1,
+        borderColor: COLORS.white,
     },
     avatarLabel: {
         fontSize: 20,
@@ -150,6 +171,18 @@ const styles = StyleSheet.create({
         borderColor: 'white',
         borderStyle: "solid",
         borderWidth: 1
+    },
+    lineCont: {
+        width: '100%',
+        display: "flex",
+        // backgroundColor: 'red',
+        flexDirection: 'row',
+        justifyContent: "flex-end"
+    },
+    line: {
+        width: '77%',
+        height: 2,
+        backgroundColor: COLORS.line,
     }
 });
 export default ContactRow;
