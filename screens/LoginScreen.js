@@ -10,7 +10,7 @@ import {
     TouchableWithoutFeedback,
     View
 } from 'react-native'
-import {createAccount, loginAccount} from "../firebaseConfig";
+import {createAccount, loginAccount, setOnline} from "../firebaseConfig";
 import {COLORS} from "../config/constants";
 import Checkbox from "expo-checkbox";
 import useAuth from "../stores/useAuth";

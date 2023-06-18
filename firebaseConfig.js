@@ -51,6 +51,7 @@ export const createAccount = async (email, password) => {
 export const loginAccount = async (email, password) => {
     try {
         const { user } = await signInWithEmailAndPassword(auth, email, password)
+        setOnline(email, true)
         alert('giriş başarılı')
         return user
     }catch (err) {
@@ -61,6 +62,7 @@ export const loginAccount = async (email, password) => {
 }
 export const signoutAccount = async () => {
     try {
+        await setOnline(auth.currentUser.email,false)
         await signOut(auth);
         auth.currentUser = null;
         alert('Signout successful');
@@ -79,6 +81,7 @@ export const createChat = async (userMail,messageRef) => {
         users: [auth.currentUser.email,userMail],
     });
 }
+
 export const setChatStatus = async (messageRef, unread, archive) => {
     await updateDoc(doc(db, "chats", messageRef), {
         status: {
@@ -110,8 +113,13 @@ export const createUser = async (userData) => {
     await setDoc(doc(db, "users", userData.id), {
         id: userData.id,
         name: userData.name,
-        colorNum: colorNum
+        colorNum: colorNum,
+        online: true,
     });
+}
+export const setOnline = async (userRef, online) => {
+    const cityRef = doc(db, 'users', userRef);
+    await updateDoc(cityRef, { online: online });
 }
 export const getUser = async (userId,setUser) => {
     const unsub = onSnapshot(doc(db, "users", userId), (doc) => {

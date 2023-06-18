@@ -13,7 +13,8 @@ const ContactRow = ({id, name, subtitle, style, chatData, navigation, status, pa
     const [user,setUser] = useState({
         name: 'null',
         id: 'null',
-        colorNum: 4
+        colorNum: 4,
+        online: false
         }
     )
     const handlePress = () => {
@@ -76,10 +77,10 @@ const ContactRow = ({id, name, subtitle, style, chatData, navigation, status, pa
                 <View style={[styles.avatar, {backgroundColor: colorCreator(user?.colorNum)}]}>
                     {
                         page === 'chats' &&
-                        <View style={styles.active}></View>
+                        <View style={[styles.active, user?.online && {backgroundColor: COLORS.activeClr}]}></View>
                     }
                     <Text style={styles.avatarLabel}>{
-                        user?.name.toUpperCase().split(' ')
+                        user?.name?.toUpperCase().split(' ')
                             .reduce((prev,current) => `${prev}${current[0]}`,'')}
                     </Text>
                 </View>
@@ -163,7 +164,7 @@ const styles = StyleSheet.create({
     active: {
         width: 12,
         height: 12,
-        backgroundColor: COLORS.activeClr,
+        backgroundColor: COLORS.ash,
         borderRadius: 10,
         position: "absolute",
         top: -3,
