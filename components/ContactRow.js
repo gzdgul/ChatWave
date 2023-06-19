@@ -35,10 +35,12 @@ const ContactRow = ({id, name, subtitle, style, chatData, navigation, status, pa
                     email: user?.id
                 }
             )
-            if (status?.lastTyper !== currentUser.email) {
-                setNotificationStatus(id, false)
-                setNotification(false)
-            }
+           if (status) {
+               if (status?.lastTyper !== currentUser.email) {
+                   setNotificationStatus(id, false)
+                   setNotification(false)
+               }
+           }
         }
         else alert('çözdümmmm istediğin kadar basss')
     }

@@ -21,6 +21,7 @@ import chat from "../components/Chat";
 import useChatData from "../stores/useMessages";
 import useSelectedUser from "../stores/useSelectedUser";
 import useModal from "../stores/useModal";
+import NotificationModal from "../components/notificationModal";
 
 function Chats({navigation}) {
     const [chats, setChats] = useState(
@@ -133,6 +134,7 @@ function Chats({navigation}) {
                     </View>
                 </View>
             </Modal>
+            <NotificationModal/>
             <View style={styles.footerView}>
                 <Text style={styles.footerText}>Lorem ipsum dolor sit amet, consectetur</Text>
             </View>

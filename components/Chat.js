@@ -27,8 +27,10 @@ const Chat = ({route}) => {
         // setlastMessage(a[0]?.text ? a[0].text : 'No message yet')
         // console.warn(selectedUser.email)
         // console.warn([...a].shift().user._id)
-        if (([...a].shift().user._id) !== currentUser.email) {
-            setNotificationStatus(messageRef,false)
+        if (([...a].shift()?.user)) {
+            if (([...a].shift().user._id) !== currentUser.email) {
+                setNotificationStatus(messageRef,false)
+            }
         }
     }, [chatData]);
 

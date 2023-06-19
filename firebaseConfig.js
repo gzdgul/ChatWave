@@ -43,9 +43,6 @@ const chatsDatabaseRef = ref(database, 'chats');
 // Yeni kullanıcı oluşturma
 export const createAccount = async (email, password) => {
     const {user} = await createUserWithEmailAndPassword(auth, email, password)
-    // const welcome_text = 'TEST 123'
-    // // await sendBOTMessage(user.uid, welcome_text)
-    // await setBOTMessageLTS(user.uid, welcome_text)
     return user
 }
 export const loginAccount = async (email, password) => {
@@ -55,9 +52,8 @@ export const loginAccount = async (email, password) => {
         alert('giriş başarılı')
         return user
     }catch (err) {
-        alert(err)
-        // (err.message.includes('user-not-found')) &&
-        // alert('Girdiğiniz e-posta veya parola yanlış. Lütfen tekrar deneyin.')
+        (err.message.includes('user-not-found')) ?
+        alert('Girdiğiniz e-posta veya parola yanlış. Lütfen tekrar deneyin.') :  alert(err)
     }
 }
 export const signoutAccount = async () => {
