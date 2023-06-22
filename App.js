@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import {Button, SafeAreaView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {Button, Platform, SafeAreaView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import { NavigationContainer } from "@react-navigation/native";
 import {createNativeStackNavigator} from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -15,6 +15,9 @@ import SetUpScreen from "./screens/SetUpScreen";
 import useSelectedUser from "./stores/useSelectedUser";
 import userPlus from "./assets/userplus.png";
 import useModal from "./stores/useModal";
+import NotificationModal from "./components/notificationModal";
+import React, {useState} from "react";
+import { SafeAreaView as SafeAreaViewContent } from 'react-native-safe-area-context';
 
 const ChatsStack = createStackNavigator();
 const SettingsStack = createStackNavigator();
@@ -25,11 +28,13 @@ const ChatsScreen = ({route}) => {
     const selectedUser = useSelectedUser((state) => state.selectedUser);
     const setModalStatus = useModal((state) => state.setModalStatus);
     const modalStatus = useModal((state) => state.modalStatus);
+    const [isModalVisible, setModalVisible] = useState(true)
     const handlePlusPress = () => {
         setModalStatus(true)
     }
     return (
         <ChatsStack.Navigator screenOptions={{ headerShown: true }}  >
+
             <ChatsStack.Screen name={'Mesajlar'}  component={Chats} options={{
                 headerStyle: { backgroundColor: COLORS.backgroundClr },
                 headerTitleStyle: { display: "none" },
@@ -40,6 +45,7 @@ const ChatsScreen = ({route}) => {
                         <Text style={styles.editText}>Düzenle</Text>
                     </TouchableOpacity>
                 ),
+
                 headerRight: () => (
                     <TouchableOpacity style={{ marginRight: 20 }}>
                         <Text style={styles.plus} onPress={handlePlusPress}>+</Text>
@@ -88,13 +94,39 @@ const TabsScreen = ({route}) => (
 );
 
 export default function App() {
+
     return (
         <NavigationContainer>
-            <MainStack.Navigator screenOptions={{ presentation: 'modal', headerShown: false }} >
-                <MainStack.Screen name={'Tabs'} component={TabsScreen}/>
-                <MainStack.Screen name={'Login'} component={LoginScreen}/>
-                <MainStack.Screen name={'Register'} component={RegisterScreen}/>
-                <MainStack.Screen name={'SetUp'} component={SetUpScreen}/>
+            <MainStack.Navigator screenOptions={{ presentation: 'card', headerShown: false }} >
+                <MainStack.Screen name={'Tabs'} component={TabsScreen} options={{
+                    headerShown: true,
+                    header: () => (
+                        // <Text></Text>
+                            <NotificationModal/>
+                    ),
+                    headerStyle: {
+                        // Android için başlık alanını tamamen gizle
+                        height: 60
+                    },
+                }}/>
+                <MainStack.Screen name={'Login'} component={LoginScreen}  options={{
+                    headerTitleStyle: { display: "none" },
+                    headerStyle: { backgroundColor: COLORS.deepBlack },
+                    headerShadowVisible: false,
+                    headerLeft: () => null,
+                }}/>
+                <MainStack.Screen name={'Register'} component={RegisterScreen} options={{
+                    headerTitleStyle: { display: "none" },
+                    headerStyle: { backgroundColor: COLORS.deepBlack },
+                    headerShadowVisible: false,
+                    headerLeft: () => null,
+                }}/>
+                <MainStack.Screen name={'SetUp'} component={SetUpScreen} options={{
+                    headerTitleStyle: { display: "none" },
+                    headerStyle: { backgroundColor: COLORS.deepBlack },
+                    headerShadowVisible: false,
+                    headerLeft: () => null,
+                }}/>
             </MainStack.Navigator>
         </NavigationContainer>
     );

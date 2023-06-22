@@ -3,31 +3,46 @@ import { GiftedChat } from 'react-native-gifted-chat'
 import {sendMessage, setNotificationStatus, setTyping} from "../firebaseConfig";
 import useAuth from "../stores/useAuth";
 import useChatData from "../stores/useMessages";
-import {StyleSheet} from "react-native";
+import {BackHandler, StyleSheet} from "react-native";
 import {COLORS} from "../config/constants";
 import TypingIndicator from "./TypingIndicator";
 import useSelectedUser from "../stores/useSelectedUser";
+import useNotificationModal from "../stores/useNotificationModal";
+import {useFocusEffect} from "@react-navigation/core";
 
-const Chat = ({route}) => {
+const Chat = ({route, navigation}) => {
     const [messages, setMessages] = useState([]);
-    const selectedUser = useSelectedUser((state) => state.selectedUser);
+    const setSelectedUser = useSelectedUser((state) => state.setSelectedUser);
     const currentUser = useAuth((state) => state?.currentUser);
     const chatData = useChatData((state) => state.chatData);
+    const setNotificationData = useNotificationModal((state) => state.setNotificationData);
     const userMail = route.params?.mail
     const messageRef = [currentUser.email,route.params?.mail].sort().join('')
     const [isTyping, setIsTyping] = useState(false);
 
+    useFocusEffect(
+        React.useCallback(() => {
+            const onBackPress = () => {
+                // setNavigatedChat('')
+                setSelectedUser(null)
+                return true;
+            };
+
+            navigation.addListener('beforeRemove', onBackPress);
+
+            return () => {
+                navigation.removeListener('beforeRemove', onBackPress);
+            };
+        }, [navigation])
+    );
 
     useEffect(() => {
         const aa = chatData.find((x) => x.chatId === route.params?.id).messages
         // Her messages güncellendiğinde yapılacak işlemler
         const a = convertMessages([aa])
         setMessages(a)
-        // console.warn([...a].pop().user._id)
-        // setlastMessage(a[0]?.text ? a[0].text : 'No message yet')
-        // console.warn(selectedUser.email)
-        // console.warn([...a].shift().user._id)
         if (([...a].shift()?.user)) {
+            // setNotificationData([...a].shift())
             if (([...a].shift().user._id) !== currentUser.email) {
                 setNotificationStatus(messageRef,false)
             }

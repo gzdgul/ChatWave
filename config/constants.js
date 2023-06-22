@@ -23,6 +23,7 @@ export const COLORS = {
     backgroundClr: '#ffffff',
     activeClr: '#78faab',
     orange: '#ff9100',
-    line: '#f3f3f3'
+    line: '#f3f3f3',
+    deepBlack: '#000000',
     // inputColor: '#404040',
 }

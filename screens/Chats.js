@@ -8,7 +8,7 @@ import {
     Pressable,
     Modal,
     TextInput,
-    ScrollView
+    ScrollView, Button
 } from "react-native";
 import {Ionicons} from '@expo/vector-icons'
 import ContactRow from "../components/ContactRow";
@@ -22,6 +22,8 @@ import useChatData from "../stores/useMessages";
 import useSelectedUser from "../stores/useSelectedUser";
 import useModal from "../stores/useModal";
 import NotificationModal from "../components/notificationModal";
+import MessagePopup from "../components/notificationModal";
+import useNotificationModal from "../stores/useNotificationModal";
 
 function Chats({navigation}) {
     const [chats, setChats] = useState(
@@ -30,10 +32,14 @@ function Chats({navigation}) {
 
     }]
     )
+    const [selectedChat, setSelectedChat] = useState(null); // Seçilen sohbetin status değerini tutan state
     const [isLoggedIn, setIsLoggedIn] = useState(false)
     const currentUser = useAuth((state) => state.currentUser);
     const modalStatus = useModal((state) => state.modalStatus);
     const setModalStatus = useModal((state) => state.setModalStatus);
+    const setNotificationModalStatus = useNotificationModal((state) => state.setNotificationModalStatus);
+    const setNotificationNumber = useNotificationModal((state) => state.setNotificationNumber);
+    const notificationModalStatus = useNotificationModal((state) => state.notificationModalStatus);
     const setChatData = useChatData((state) => state.setChatData);
     const [modalVisible, setModalVisible] = useState(false);
     const [userMail, setUserMail] = useState('')
@@ -82,6 +88,7 @@ function Chats({navigation}) {
             <View style={styles.banner}>
                 <Text style={styles.bannerText}>Mesajlar</Text>
             </View>
+            {/*<Button title={'Show Modal'} onPress={() => setNotificationNumber()}/>*/}
             {
                 chats?.map((x, index) => (
                     <React.Fragment key={x.users.sort().join('')}>
@@ -90,6 +97,8 @@ function Chats({navigation}) {
                                     name={x.users.find((x) => x !== currentUser?.email)}
                                     chatData={x}
                                     status={x?.status}
+                                    // lastTyper={x?.status?.lastTyper}
+                                    messages={x.messages ? [...x.messages] : null}
                                     subtitle={!x.messages ? 'No message yet' : [...x.messages][0].text}
                                     navigation={navigation}
                                     page={'chats'}
@@ -134,7 +143,8 @@ function Chats({navigation}) {
                     </View>
                 </View>
             </Modal>
-            <NotificationModal/>
+            {/*<NotificationModal/>*/}
+
             <View style={styles.footerView}>
                 <Text style={styles.footerText}>Lorem ipsum dolor sit amet, consectetur</Text>
             </View>

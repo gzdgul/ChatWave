@@ -5,20 +5,31 @@ import {getUser, setChatStatus, setNotificationStatus} from "../firebaseConfig";
 import useAuth from "../stores/useAuth";
 import useSelectedUser from "../stores/useSelectedUser";
 import {COLORS} from "../config/constants";
+import useNotificationModal from "../stores/useNotificationModal";
+import {ColorCreator} from "./ColorCreator";
+import TypingIndicator from "./TypingIndicator";
+import LoadingIndicator from "./LoadingIndicator";
 
-const ContactRow = ({id, name, subtitle, style, chatData, navigation, status, page}) => {
+const ContactRow = ({id, name, subtitle, style, chatData, navigation, status, page, lastTyper, messages}) => {
     const currentUser = useAuth((state) => state.currentUser);
     const setSelectedUser = useSelectedUser((state) => state.setSelectedUser);
+    const selectedUser = useSelectedUser((state) => state.selectedUser);
     const [notification, setNotification] = useState(false)
+    const setNotificationData = useNotificationModal((state) => state.setNotificationData);
+    const setNotificationNumber = useNotificationModal((state) => state.setNotificationNumber);
+    const [firstRenderCompleted, setFirstRenderCompleted] = useState(false)
+    const [navigatedChat, setNavigatedChat] = useState('null');
+
     const [user,setUser] = useState({
-        name: 'null',
-        id: 'null',
+        name: undefined,
+        id: undefined,
         colorNum: 4,
         online: false
         }
     )
     const handlePress = () => {
         if (page !== 'settings') {
+
             navigation.navigate('Chat', {
                 id: chatData.users.sort().join(''),
                 mail: chatData.users.find((x) => x !== currentUser?.email),
@@ -35,62 +46,97 @@ const ContactRow = ({id, name, subtitle, style, chatData, navigation, status, pa
                     email: user?.id
                 }
             )
-           if (status) {
-               if (status?.lastTyper !== currentUser.email) {
-                   setNotificationStatus(id, false)
-                   setNotification(false)
-               }
-           }
+            if (status) {
+                if (status?.lastTyper !== currentUser.email) {
+                    setNotificationStatus(id, false)
+                    setNotification(false)
+                }
+            }
         }
-        else alert('çözdümmmm istediğin kadar basss')
+        else alert('my profile')
     }
-    useEffect(() => {
-        getUser(name,setUser)
-    },[name])
 
     useEffect(() => {
-        if (status?.unread){
-            if ( status?.lastTyper !== currentUser.email) {
-                setNotification(true)
+            if (status?.unread){
+                if ( status?.lastTyper !== currentUser?.email) {
+                    setNotification(true)
+                }
+                else setNotification(false)
             }
             else setNotification(false)
+
+    },[])
+
+    // useEffect(() => {
+    //     console.log('selectedUser',selectedUser)
+    // },[selectedUser])
+
+
+    useEffect(() => {
+        if (user.id !== undefined) {
+            if (selectedUser?.email !== user?.id && messages?.length > 0) {
+                const LastMessageCreatedAt = messages[0].createdAt.toDate();
+                const currentTime = new Date();
+                const isApproximatelyEqual = Math.abs(currentTime - LastMessageCreatedAt) <= 5000; // Yaklaşık olarak eşitlik kontrolü (5000 milisaniye tolerans)
+                // console.log(isApproximatelyEqual)
+                if (messages[0]?.user._id !== currentUser?.email) {
+                    if (isApproximatelyEqual) {
+                        setNotification(true)
+                        setNotificationData({
+                            id: messages[0].user._id,
+                            name: messages[0].user.name,
+                            text: messages[0].text,
+                            color: user?.colorNum,
+                            createdAt: LastMessageCreatedAt,
+                            handlePress: handlePress
+                        });
+                        currentUser && setNotificationNumber();
+                    }
+                }
+            }
         }
-        else setNotification(false)
-    },[name,status])
-    const colorCreator = (colorNum) => {
-        switch (colorNum) {
-            case 1:return COLORS.pudra;
-            case 2:return COLORS.sky;
-            case 3:return COLORS.greeny;
-            case 4:return COLORS.peach;
-            case 5:return COLORS.gold;
-            case 6:return COLORS.babyFire;
-            case 7:return COLORS.pig;
-            case 8:return COLORS.babyBlue;
+    }, [messages?.length]);
+
+
+
+    useEffect(() => {
+        if (name) {
+            getUser(name, setUser);
         }
-    }
+    }, [name]);
+
+
     return (
         <>
+
             <TouchableOpacity style={[styles.row, style,  page === 'settings' && styles.settings]} onPress={handlePress}>
                 {
-                    page === 'chats' &&
-                    <View style={[styles.indicator,  notification && { backgroundColor: COLORS.orange}]}></View>
+                    user.id !== undefined ?
+                    <>
+                        {
+                            page === 'chats' &&
+                            <View style={[styles.indicator,  notification && { backgroundColor: COLORS.orange}]}></View>
+                        }
+                        <View style={[styles.avatar, {backgroundColor: ColorCreator(user?.colorNum)}]}>
+                            {
+                                page === 'chats' &&
+                                <View style={[styles.active, user?.online && {backgroundColor: COLORS.activeClr}]}></View>
+                            }
+                            <Text style={styles.avatarLabel}>{
+                                user?.name?.toUpperCase().split(' ')
+                                    .reduce((prev,current) => `${prev}${current[0]}`,'')}
+                            </Text>
+                        </View>
+                        <View style={styles.userInfoText}>
+                            <Text style={[styles.name, notification && { color: COLORS.orange,  fontWeight: "700"}]}>{user?.name}</Text>
+                            <Text style={styles.subtitle}>{subtitle?.length >= 30 ? subtitle?.slice(0,30)+'...' : subtitle}</Text>
+                            {/*<Text style={styles.subtitle}>{!chatData.messages ? 'No message yet' : [...chatData.messages][0].text}</Text>*/}
+                        </View>
+                        <Ionicons name={'chevron-forward-outline'} style={ notification ? { color: COLORS.orange} : { color: COLORS.ash} } size={20}/>
+                    </>
+                        : <LoadingIndicator/>
+
                 }
-                <View style={[styles.avatar, {backgroundColor: colorCreator(user?.colorNum)}]}>
-                    {
-                        page === 'chats' &&
-                        <View style={[styles.active, user?.online && {backgroundColor: COLORS.activeClr}]}></View>
-                    }
-                    <Text style={styles.avatarLabel}>{
-                        user?.name?.toUpperCase().split(' ')
-                            .reduce((prev,current) => `${prev}${current[0]}`,'')}
-                    </Text>
-                </View>
-                <View style={styles.userInfoText}>
-                    <Text style={[styles.name, notification && { color: COLORS.orange,  fontWeight: "700"}]}>{user?.name}</Text>
-                    <Text style={styles.subtitle}>{subtitle}</Text>
-                </View>
-                <Ionicons name={'chevron-forward-outline'} style={ notification ? { color: COLORS.orange} : { color: COLORS.ash} } size={20}/>
             </TouchableOpacity>
            <View style={styles.lineCont}>
                <View style={styles.line}></View>
