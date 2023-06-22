@@ -8,7 +8,7 @@ import {
     updateProfile
 } from "firebase/auth";
 import {arrayUnion, collection, doc, getDoc, getDocs, addDoc, orderBy, getFirestore, setDoc, updateDoc, onSnapshot, where} from "firebase/firestore";
-import {getDatabase, onValue, push, ref, set, serverTimestamp, query, orderByChild, startAt,limitToFirst } from "firebase/database";
+import {getDatabase, onValue, push, ref, set, get, serverTimestamp, query, orderByChild, startAt,limitToFirst } from "firebase/database";
 import firebase from "firebase/compat";
 import {COLORS} from "./config/constants";
 
@@ -33,13 +33,64 @@ const database = getDatabase(app);
 // const chatsDatabaseRef = ref(db, 'chats');
 const chatsDatabaseRef = ref(database, 'chats');
 
-// export const setTyping = async (userMail, status) => {
-//     return await set(ref(database, 'typing/' + userMail + '/ '+ auth.currentUser.uid), {
-//         'typerID': auth.currentUser.uid,
-//         'recieverID': userMail,
-//         'status': status,
-//     })
-// }
+export const setTyping = async (chatRef, status) => {
+    const currentUser = auth.currentUser.email;
+    // const encodedRef = encodeURIComponent(chatRef)
+    const encodedRef = chatRef?.replace(/[.]/g,'_');
+    const typingRef = ref(database, 'typing/' + encodedRef);
+    const typingSnapshot = await get(typingRef);
+
+    if (typingSnapshot.exists()) {
+        const typers = typingSnapshot.val().typers;
+
+        if (typers.includes(currentUser)) {
+            const updatedTypers = typers.filter(typer => typer !== currentUser);
+
+            if (status === false) {
+                return await set(typingRef, {
+                    typers: updatedTypers
+                });
+            }
+        } else {
+            if (status === true) {
+                typers.push(currentUser);
+
+                return await set(typingRef, {
+                    typers: typers
+                });
+            }
+        }
+    } else {
+        if (status === true) {
+            return await set(typingRef, {
+                typers: [currentUser]
+            });
+        }
+    }
+};
+export const listenTyping = (chatRef,setTypers) => {
+    const encodedRef = chatRef?.replace(/[.]/g,'_');
+    const typingRef = ref(database, 'typing/' + encodedRef);
+
+    // Dinleyiciyi başlat
+    const unsubscribe = onValue(typingRef, (snapshot) => {
+        // Veri değiştiğinde burası çalışacak
+        const typingData = snapshot.val();
+
+        // Typing verisini kullanabilirsiniz
+        // Örneğin, typers dizisini almak isterseniz
+        const typers = typingData?.typers || [];
+
+        // Typers'ı kullanarak yapmak istediğiniz işlemi gerçekleştirin
+        console.log('Typers:', typers);
+        setTypers(typers)
+    });
+
+    // Dinleyiciyi durdurmak istediğinizde, unsubscribe fonksiyonunu çağırın
+    // Örneğin, bir bileşenin temizlenmesi veya sayfa geçişi durumunda
+    // unsubscribe();
+};
+
 // Yeni kullanıcı oluşturma
 export const createAccount = async (email, password) => {
     const {user} = await createUserWithEmailAndPassword(auth, email, password)
@@ -49,7 +100,7 @@ export const loginAccount = async (email, password) => {
     try {
         const { user } = await signInWithEmailAndPassword(auth, email, password)
         setOnline(true)
-        alert('giriş başarılı')
+        alert('Success Login')
         return user
     }catch (err) {
         (err.message.includes('user-not-found')) ?

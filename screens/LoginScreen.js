@@ -35,10 +35,9 @@ const LoginScreen = ({navigation}) => {
             const user = await loginAccount(email, password)
             setCurrentUser(user)
             if (user !== undefined) {
-                alert('Success Login')
                 setTimeout(() => {
                     navigation.navigate('Home');
-                }, 2000);
+                }, 1000);
             }
         }
     }

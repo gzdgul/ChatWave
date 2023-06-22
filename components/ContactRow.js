@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {StyleSheet, Text, TextBase, TouchableOpacity, View} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
-import {getUser, setChatStatus, setNotificationStatus} from "../firebaseConfig";
+import {getUser, listenTyping, setChatStatus, setNotificationStatus} from "../firebaseConfig";
 import useAuth from "../stores/useAuth";
 import useSelectedUser from "../stores/useSelectedUser";
 import {COLORS} from "../config/constants";
@@ -17,8 +17,9 @@ const ContactRow = ({id, name, subtitle, style, chatData, navigation, status, pa
     const [notification, setNotification] = useState(false)
     const setNotificationData = useNotificationModal((state) => state.setNotificationData);
     const setNotificationNumber = useNotificationModal((state) => state.setNotificationNumber);
-    const [firstRenderCompleted, setFirstRenderCompleted] = useState(false)
-    const [navigatedChat, setNavigatedChat] = useState('null');
+    const [typers, setTypers] = useState([]);
+    const [typing, setTyping] = useState(false);
+
 
     const [user,setUser] = useState({
         name: undefined,
@@ -67,6 +68,17 @@ const ContactRow = ({id, name, subtitle, style, chatData, navigation, status, pa
             else setNotification(false)
 
     },[])
+
+    useEffect(() => {
+        listenTyping(id,setTypers)
+    },[])
+
+    useEffect(() => {
+        if (typers !== [] && typers.includes(user?.id)) {
+            setTyping(true)
+        }
+        else setTyping(false)
+    },[typers])
 
 
     useEffect(() => {
@@ -126,7 +138,11 @@ const ContactRow = ({id, name, subtitle, style, chatData, navigation, status, pa
                         </View>
                         <View style={styles.userInfoText}>
                             <Text style={[styles.name, notification && { color: COLORS.orange,  fontWeight: "700"}]}>{user?.name}</Text>
-                            <Text style={[styles.subtitle, notification && { fontWeight: "600"}]}>{subtitle?.length >= 30 ? subtitle?.slice(0,30)+'...' : subtitle}</Text>
+                            {
+                                typing
+                                    ? <TypingIndicator/>
+                                    : <Text style={[styles.subtitle, notification && { fontWeight: "600"}]}>{subtitle?.length >= 30 ? subtitle?.slice(0,30)+'...' : subtitle}</Text>
+                            }
                             {/*<Text style={styles.subtitle}>{!chatData.messages ? 'No message yet' : [...chatData.messages][0].text}</Text>*/}
                         </View>
                         <Ionicons name={'chevron-forward-outline'} style={ notification ? { color: COLORS.orange} : { color: COLORS.ash} } size={20}/>

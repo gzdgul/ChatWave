@@ -16,7 +16,7 @@ const Chat = ({route, navigation}) => {
     const currentUser = useAuth((state) => state?.currentUser);
     const chatData = useChatData((state) => state.chatData);
     const setNotificationData = useNotificationModal((state) => state.setNotificationData);
-    const userMail = route.params?.mail
+    const chatId = route.params?.id
     const messageRef = [currentUser.email,route.params?.mail].sort().join('')
     const [isTyping, setIsTyping] = useState(false);
 
@@ -95,14 +95,20 @@ const Chat = ({route, navigation}) => {
         setIsTyping(text.length > 0);
 
     };
-    // useEffect(() => {
-    //     if (isTyping){
-    //         setTyping(route.params?.mail, true)
-    //         console.warn(route.params?.mail, true)
-    //     }
-    //     else  setTyping('aaaaaaaaaaaaaaa', false)
-    //
-    // },[isTyping])
+    useEffect(() => {
+        if (isTyping){
+            setTyping(chatId, true)
+            const timeoutId = setTimeout(() => {
+                setIsTyping(false);
+            }, 10000);
+
+            return () => {
+                clearTimeout(timeoutId); // Değişiklik temizleyici fonksiyonunda zamanlayıcıyı temizle
+            };
+        }
+        else setTyping(chatId, false)
+
+    },[isTyping])
 
     const renderFooter = () => {
         if (isTyping) {

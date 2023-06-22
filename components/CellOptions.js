@@ -9,10 +9,9 @@ const CellOptions = ({navigation}) => {
     const setCurrentUser = useAuth((state) => state.setCurrentUser);
 
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
+         await signoutAccount()
         setCurrentUser(null)
-        alert('Çıkış Yapılıyor');
-         signoutAccount()
          setTimeout(() => {
              navigation.navigate('Login')
          },500)
