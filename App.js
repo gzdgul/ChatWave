@@ -109,21 +109,14 @@ export default function App() {
                 appState.current.match(/inactive|background/) &&
                 nextAppState === 'active'
             ) {
-                if (currentUser) {
-                    setOnline(currentUser?.email, true)
-                }
                 console.log('App foreground!');
             }
             if (
                 appState.current === 'active' &&
                 nextAppState.match(/inactive|background/)
             ) {
-                if (currentUser) {
-                    setOnline(currentUser?.email, false)
-                }
                 console.log('App BACKGROUND');
             }
-
             appState.current = nextAppState;
             setAppStateVisible(appState.current);
             // console.log('AppState', appState.current);
@@ -133,6 +126,15 @@ export default function App() {
             subscription.remove();
         };
     }, []);
+
+    useEffect(() => {
+        if (appStateVisible === "background") {
+            setOnline( false)
+        }
+        if (appStateVisible === "active") {
+            setOnline( true)
+        }
+    },[appStateVisible])
 
     return (
         <NavigationContainer>

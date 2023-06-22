@@ -3,11 +3,15 @@ import {COLORS} from "../config/constants";
 import CellButton from "./CellButton";
 import {StyleSheet, View} from "react-native";
 import {setOnline, signoutAccount} from "../firebaseConfig";
+import useAuth from "../stores/useAuth";
 
 const CellOptions = ({navigation}) => {
-    const handleLogout = () => {
-        alert('Çıkış Yapılıyor');
+    const setCurrentUser = useAuth((state) => state.setCurrentUser);
 
+
+    const handleLogout = () => {
+        setCurrentUser(null)
+        alert('Çıkış Yapılıyor');
          signoutAccount()
          setTimeout(() => {
              navigation.navigate('Login')

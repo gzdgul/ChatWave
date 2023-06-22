@@ -48,7 +48,7 @@ export const createAccount = async (email, password) => {
 export const loginAccount = async (email, password) => {
     try {
         const { user } = await signInWithEmailAndPassword(auth, email, password)
-        setOnline(email, true)
+        setOnline(true)
         alert('giriş başarılı')
         return user
     }catch (err) {
@@ -58,7 +58,7 @@ export const loginAccount = async (email, password) => {
 }
 export const signoutAccount = async () => {
     try {
-        await setOnline(auth.currentUser.email,false)
+        await setOnline(false)
         await signOut(auth);
         auth.currentUser = null;
         alert('Signout successful');
@@ -113,9 +113,12 @@ export const createUser = async (userData) => {
         online: true,
     });
 }
-export const setOnline = async (userRef, online) => {
-    const cityRef = doc(db, 'users', userRef);
-    await updateDoc(cityRef, { online: online });
+export const setOnline = async (online) => {
+    if (auth?.currentUser?.email) {
+        const userRef = auth.currentUser.email
+        const chatRef = doc(db, 'users', userRef);
+        await updateDoc(chatRef, { online: online });
+    }
 }
 export const getUser = async (userId,setUser) => {
     const unsub = onSnapshot(doc(db, "users", userId), (doc) => {
