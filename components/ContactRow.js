@@ -28,7 +28,8 @@ const ContactRow = ({id, name, subtitle, style, chatData, navigation, status, pa
         }
     )
     const handlePress = () => {
-        if (page !== 'settings') {
+
+        if (user?.id !== undefined && page !== 'settings') {
 
             navigation.navigate('Chat', {
                 id: chatData.users.sort().join(''),
@@ -67,13 +68,9 @@ const ContactRow = ({id, name, subtitle, style, chatData, navigation, status, pa
 
     },[])
 
-    // useEffect(() => {
-    //     console.log('selectedUser',selectedUser)
-    // },[selectedUser])
-
 
     useEffect(() => {
-        if (user.id !== undefined) {
+        if (user?.id !== undefined) {
             if (selectedUser?.email !== user?.id && messages?.length > 0) {
                 const LastMessageCreatedAt = messages[0].createdAt.toDate();
                 const currentTime = new Date();
@@ -111,7 +108,7 @@ const ContactRow = ({id, name, subtitle, style, chatData, navigation, status, pa
 
             <TouchableOpacity style={[styles.row, style,  page === 'settings' && styles.settings]} onPress={handlePress}>
                 {
-                    user.id !== undefined ?
+                    user?.id !== undefined ?
                     <>
                         {
                             page === 'chats' &&
@@ -129,7 +126,7 @@ const ContactRow = ({id, name, subtitle, style, chatData, navigation, status, pa
                         </View>
                         <View style={styles.userInfoText}>
                             <Text style={[styles.name, notification && { color: COLORS.orange,  fontWeight: "700"}]}>{user?.name}</Text>
-                            <Text style={styles.subtitle}>{subtitle?.length >= 30 ? subtitle?.slice(0,30)+'...' : subtitle}</Text>
+                            <Text style={[styles.subtitle, notification && { fontWeight: "600"}]}>{subtitle?.length >= 30 ? subtitle?.slice(0,30)+'...' : subtitle}</Text>
                             {/*<Text style={styles.subtitle}>{!chatData.messages ? 'No message yet' : [...chatData.messages][0].text}</Text>*/}
                         </View>
                         <Ionicons name={'chevron-forward-outline'} style={ notification ? { color: COLORS.orange} : { color: COLORS.ash} } size={20}/>
@@ -189,6 +186,7 @@ const styles = StyleSheet.create({
         marginTop: 2,
         color: COLORS.inputColor,
         fontSize: 14,
+
     },
     avatar: {
         width: 52,

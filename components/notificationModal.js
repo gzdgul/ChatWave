@@ -31,7 +31,7 @@ function NotificationModal({ }) {
 
     useEffect(() => {
         const currentTime = new Date();
-        const isApproximatelyEqual = Math.abs(currentTime - notificationData.createdAt) <= 5000; // Yaklaşık olarak eşitlik kontrolü (5000 milisaniye tolerans)
+        const isApproximatelyEqual = Math.abs(currentTime - notificationData?.createdAt) <= 5000; // Yaklaşık olarak eşitlik kontrolü (5000 milisaniye tolerans)
         if (isApproximatelyEqual) {
             setNotificationModalStatus(true);
             setModalKey((prevKey) => prevKey + 1);

@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import {Button, Platform, SafeAreaView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {AppState, Button, Platform, SafeAreaView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import { NavigationContainer } from "@react-navigation/native";
 import {createNativeStackNavigator} from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -16,13 +16,16 @@ import useSelectedUser from "./stores/useSelectedUser";
 import userPlus from "./assets/userplus.png";
 import useModal from "./stores/useModal";
 import NotificationModal from "./components/notificationModal";
-import React, {useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import { SafeAreaView as SafeAreaViewContent } from 'react-native-safe-area-context';
+import {setOnline} from "./firebaseConfig";
+import useAuth from "./stores/useAuth";
 
 const ChatsStack = createStackNavigator();
 const SettingsStack = createStackNavigator();
 const MainStack = createStackNavigator();
 const Tabs = createBottomTabNavigator();
+
 
 const ChatsScreen = ({route}) => {
     const selectedUser = useSelectedUser((state) => state.selectedUser);
@@ -32,6 +35,7 @@ const ChatsScreen = ({route}) => {
     const handlePlusPress = () => {
         setModalStatus(true)
     }
+
     return (
         <ChatsStack.Navigator screenOptions={{ headerShown: true }}  >
 
@@ -94,6 +98,41 @@ const TabsScreen = ({route}) => (
 );
 
 export default function App() {
+    const currentUser = useAuth((state) => state.currentUser);
+    console.log('CURRENT_USER',currentUser?.email)
+    const appState = useRef(AppState.currentState);
+    const [appStateVisible, setAppStateVisible] = useState(appState.current);
+
+    useEffect(() => {
+        const subscription = AppState.addEventListener('change', nextAppState => {
+            if (
+                appState.current.match(/inactive|background/) &&
+                nextAppState === 'active'
+            ) {
+                if (currentUser) {
+                    setOnline(currentUser?.email, true)
+                }
+                console.log('App foreground!');
+            }
+            if (
+                appState.current === 'active' &&
+                nextAppState.match(/inactive|background/)
+            ) {
+                if (currentUser) {
+                    setOnline(currentUser?.email, false)
+                }
+                console.log('App BACKGROUND');
+            }
+
+            appState.current = nextAppState;
+            setAppStateVisible(appState.current);
+            // console.log('AppState', appState.current);
+        });
+
+        return () => {
+            subscription.remove();
+        };
+    }, []);
 
     return (
         <NavigationContainer>

@@ -12,7 +12,7 @@ const CellButton = ({icon, text, onPress, tintColor}) => (
             <Ionicons name={icon} size={24} color={'white'}/>
         </View>
         <Text style={styles.text}>{text}</Text>
-        <Ionicons name={'chevron-forward-outline'} size={20}/>
+        <Ionicons style={{color: COLORS.ash}} name={'chevron-forward-outline'} size={20}/>
     </TouchableOpacity>
 );
 const styles = StyleSheet.create({
