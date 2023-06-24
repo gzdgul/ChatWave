@@ -24,6 +24,9 @@ import useModal from "../stores/useModal";
 import NotificationModal from "../components/notificationModal";
 import MessagePopup from "../components/notificationModal";
 import useNotificationModal from "../stores/useNotificationModal";
+import useThemeProvider from "../stores/useThemeProvider";
+import useCurrentUser from "../stores/useCurrentUser";
+import useUserColor from "../stores/useUserColor";
 
 function Chats({navigation}) {
     const [chats, setChats] = useState(
@@ -32,9 +35,12 @@ function Chats({navigation}) {
 
     }]
     )
+    const theme = useThemeProvider((state) => state.theme);
     const [selectedChat, setSelectedChat] = useState(null); // Seçilen sohbetin status değerini tutan state
     const [isLoggedIn, setIsLoggedIn] = useState(false)
-    const currentUser = useAuth((state) => state.currentUser);
+    const authUser = useAuth((state) => state.authUser);
+    const currentUser = useCurrentUser((state) => state.currentUser);
+    const setUserColor = useUserColor((state) => state.setUserColor);
     const modalStatus = useModal((state) => state.modalStatus);
     const setModalStatus = useModal((state) => state.setModalStatus);
     const setNotificationModalStatus = useNotificationModal((state) => state.setNotificationModalStatus);
@@ -45,17 +51,22 @@ function Chats({navigation}) {
     const [userMail, setUserMail] = useState('')
     const [lastMessage,setlastMessage] = useState('No message')
 
-    // const ChatKey = currentUser?.email+userMail
+    // const ChatKey = authUser?.email+userMail
     // console.warn('hhhhh', chats)
-
+    useEffect(() => {
+        console.log('currentUser111111111111111111111111',currentUser)
+        if (currentUser) {
+            setUserColor(currentUser.colorNum)
+        }
+    },[currentUser])
     const createConnection = () => {
-        const messageRef = [currentUser.email,userMail.toLowerCase()].sort().join('')
+        const messageRef = [authUser.email,userMail.toLowerCase()].sort().join('')
         // console.warn(userMail.toLowerCase())
         createChat(userMail.toLowerCase(),messageRef)
         //     .then(() => {
         //     navigation.navigate('Chat', {
         //         id: chatData.users.sort().join(''),
-        //         mail: chatData.users.find((x) => x !== currentUser?.email),
+        //         mail: chatData.users.find((x) => x !== authUser?.email),
         //         messages: chatData.messages,
         //     });
         // })
@@ -63,15 +74,15 @@ function Chats({navigation}) {
     }
 
     useEffect(() => {
-        if (!currentUser) {
+        if (!authUser) {
             navigation.navigate('Login')
         }
     },[])
     useEffect(() => {
-        if (currentUser !== null) {
+        if (authUser !== null) {
             listenChatss(setChats)
         }
-    },[currentUser])
+    },[authUser])
 
     useEffect(() => {
         chats.forEach((x) => {
@@ -84,9 +95,9 @@ function Chats({navigation}) {
     },[chats])
 
     return (
-        <ScrollView style={styles.area}>
-            <View style={styles.banner}>
-                <Text style={styles.bannerText}>Mesajlar</Text>
+        <ScrollView style={[styles.area, {backgroundColor: theme.pure}]}>
+            <View>
+                <Text style={[styles.bannerText , {color: theme.text}]}>Mesajlar</Text>
             </View>
             {/*<Button title={'Show Modal'} onPress={() => setNotificationNumber()}/>*/}
             {
@@ -94,7 +105,7 @@ function Chats({navigation}) {
                     <React.Fragment key={x.users.sort().join('')}>
                         <ContactRow
                                     id={x.users.sort().join('')}
-                                    name={x.users.find((x) => x !== currentUser?.email)}
+                                    name={x.users.find((x) => x !== authUser?.email)}
                                     chatData={x}
                                     status={x?.status}
                                     // lastTyper={x?.status?.lastTyper}
@@ -122,7 +133,7 @@ function Chats({navigation}) {
                         ></TextInput>
                        <View style={styles.modalOpt}>
                            <TouchableOpacity
-                               style={[styles.button, styles.buttonClose]}
+                               style={styles.button}
                                onPress={() => setModalStatus(!modalStatus)}>
                                <Text style={styles.textStyle}
                                      onPress={createConnection}
@@ -131,7 +142,7 @@ function Chats({navigation}) {
                                </Text>
                            </TouchableOpacity>
                            <TouchableOpacity
-                               style={[styles.crossButton, styles.buttonClose]}
+                               style={styles.crossButton}
                                onPress={() => setModalStatus(!modalStatus)}>
                                <Text style={styles.cross}
                                      onPress={() => { setModalStatus(false)}}
@@ -146,7 +157,7 @@ function Chats({navigation}) {
             {/*<NotificationModal/>*/}
 
             <View style={styles.footerView}>
-                <Text style={styles.footerText}>Lorem ipsum dolor sit amet, consectetur</Text>
+                <Text style={[styles.footerText, { color: theme.textLight}]}>Lorem ipsum dolor sit amet, consectetur</Text>
             </View>
         </ScrollView>
     );
@@ -154,15 +165,15 @@ function Chats({navigation}) {
 const styles = StyleSheet.create({
     area: {
         flex: 1,
-        backgroundColor: COLORS.backgroundClr,
+        // backgroundColor: COLORS.backgroundClr,
         // paddingVertical: 25,
     },
     bannerText: {
         fontSize: 33,
-        color: COLORS.black,
+        // color: COLORS.black,
         paddingVertical: 10,
         paddingHorizontal: 20,
-        fontWeight: '700'
+        fontWeight: '700',
     },
     centeredView: {
         flex: 1,
@@ -237,7 +248,7 @@ const styles = StyleSheet.create({
     },
     footerText: {
         fontSize: 12,
-        color: COLORS.ash
+        opacity: 0.50
     }
 });
 

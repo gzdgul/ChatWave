@@ -1,10 +1,10 @@
 import {create} from 'zustand'
 
 const useAuth = create((set) => ({
-    currentUser: null,
-    setCurrentUser: (x) => {
+    authUser: null,
+    setAuthUser: (x) => {
         set(() => ({
-            currentUser: x
+            authUser: x
         }))
     }
 }));

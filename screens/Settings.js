@@ -9,17 +9,22 @@ import { getAuth } from "firebase/auth";
 
 import { useEffect, useState } from 'react';
 import useAuth from "../stores/useAuth";
+import useThemeProvider from "../stores/useThemeProvider";
+import {getUser} from "../firebaseConfig";
+import useCurrentUser from "../stores/useCurrentUser";
 
 function Settings({ navigation }) {
     // const [currentUser, setCurrentUser] = useState(null);
-    const currentUser = useAuth((state) => state.currentUser);
+    const authUser = useAuth((state) => state.authUser);
+    const currentUser = useCurrentUser((state) => state.currentUser);
+    const theme = useThemeProvider((state) => state.theme);
 
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
             <ContactRow
-                name={currentUser ? currentUser.email: 'bos'}
-                subtitle={currentUser ? currentUser.email : 'bos'}
-                style={styles.contactRow}
+                name={authUser ? authUser.email: 'bos'}
+                subtitle={authUser ? authUser.email : 'bos'}
+                style={[styles.contactRow]}
                 page={'settings'}
             />
             <CellOptions navigation={navigation} />
@@ -27,16 +32,15 @@ function Settings({ navigation }) {
     );
 }
 
-
 const styles = StyleSheet.create({
     container: {
         flex: 1,
     },
     contactRow: {
-        backgroundColor: COLORS.white,
+        // backgroundColor: COLORS.white,
         marginTop: 16,
-        borderTopWidth: StyleSheet.hairlineWidth,
-        borderColor: COLORS.ash,
+        // borderTopWidth: StyleSheet.hairlineWidth,
+        // borderColor: COLORS.ash,
     },
 });
 

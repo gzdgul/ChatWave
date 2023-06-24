@@ -10,10 +10,12 @@ import {
     TouchableWithoutFeedback,
     View
 } from 'react-native'
-import {createAccount, loginAccount, setOnline} from "../firebaseConfig";
+import {createAccount, getUser, loginAccount, setOnline} from "../firebaseConfig";
 import {COLORS} from "../config/constants";
 import Checkbox from "expo-checkbox";
 import useAuth from "../stores/useAuth";
+import useUserColor from "../stores/useUserColor";
+import useCurrentUser from "../stores/useCurrentUser";
 
 
 const LoginScreen = ({navigation}) => {
@@ -21,7 +23,10 @@ const LoginScreen = ({navigation}) => {
     const [password, setPassword] = useState('')
     const [isSelected, setIsSelected] = useState(false)
     const [active, setActive] = useState(false)
-    const setCurrentUser = useAuth((state) => state.setCurrentUser);
+    const setAuthUser = useAuth((state) => state.setAuthUser);
+    const setUserColor = useUserColor((state) => state.setUserColor);
+    const setCurrentUser = useCurrentUser((state) => state.setCurrentUser);
+    const currentUser = useCurrentUser((state) => state.currentUser);
     // const navigation = useNavigation()
 
     const handleRegisterScreen = () => {
@@ -33,7 +38,8 @@ const LoginScreen = ({navigation}) => {
     const handleLogin = async () => {
         if (email.length > 0 && password.length > 0) {
             const user = await loginAccount(email, password)
-            setCurrentUser(user)
+            setAuthUser(user)
+            await getUser(user.email, setCurrentUser)
             if (user !== undefined) {
                 setTimeout(() => {
                     navigation.navigate('Home');

@@ -14,10 +14,12 @@ import {
     Platform,
     ScrollView,
 } from 'react-native'
-import {createAccount, createUser, updateDisplayName} from "../firebaseConfig";
+import {createAccount, createUser, getUser, updateDisplayName} from "../firebaseConfig";
 import { COLORS } from "../config/constants";
 import Checkbox from 'expo-checkbox';
 import useAuth from "../stores/useAuth";
+import useCurrentUser from "../stores/useCurrentUser";
+import useUserColor from "../stores/useUserColor";
 
 const SetUpScreen = ({ navigation, route }) => {
     // const [email, setEmail] = useState('')
@@ -27,7 +29,10 @@ const SetUpScreen = ({ navigation, route }) => {
     const [cPass, setcPass] = useState('')
     const [checkboxOne, setCheckboxOne] = useState(false)
     const [checkboxTwo, setCheckboxTwo] = useState(false)
-    const setCurrentUser = useAuth((state) => state.setCurrentUser);
+    const setAuthUser = useAuth((state) => state.setAuthUser);
+    const setCurrentUser = useCurrentUser((state) => state.setCurrentUser);
+    const currentUser = useCurrentUser((state) => state.currentUser);
+    const setUserColor = useUserColor((state) => state.setUserColor);
 
     // console.warn(route.params.email)
     const handleLoginScreen = () => {
@@ -45,7 +50,9 @@ const SetUpScreen = ({ navigation, route }) => {
                     name: (firstName+' '+lastName),
                 }
                 createUser(userData)
-                setCurrentUser(user)
+                getUser(user.email, setCurrentUser)
+                setAuthUser(user)
+                setUserColor(currentUser.colorNum)
                 alert('Success Register')
                 setTimeout(() => {
                     navigation.navigate('Home');

@@ -1,7 +1,5 @@
-import { StatusBar } from 'expo-status-bar';
-import {AppState, Button, Platform, SafeAreaView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {AppState, StyleSheet, Text, TextInput, TouchableOpacity} from 'react-native';
 import { NavigationContainer } from "@react-navigation/native";
-import {createNativeStackNavigator} from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import {Ionicons} from "@expo/vector-icons";
 import {createStackNavigator} from "@react-navigation/stack";
@@ -13,37 +11,98 @@ import {COLORS} from "./config/constants";
 import RegisterScreen from "./screens/RegisterScreen";
 import SetUpScreen from "./screens/SetUpScreen";
 import useSelectedUser from "./stores/useSelectedUser";
-import userPlus from "./assets/userplus.png";
 import useModal from "./stores/useModal";
 import NotificationModal from "./components/notificationModal";
 import React, {useEffect, useRef, useState} from "react";
-import { SafeAreaView as SafeAreaViewContent } from 'react-native-safe-area-context';
-import {setOnline} from "./firebaseConfig";
+import {getUser, setOnline} from "./firebaseConfig";
 import useAuth from "./stores/useAuth";
+import useThemeProvider from "./stores/useThemeProvider";
+import Appearance from "./components/Appearance";
+import useCurrentUser from "./stores/useCurrentUser";
+import useUserColor from "./stores/useUserColor";
+import useNotification from "./stores/useNotification";
 
 const ChatsStack = createStackNavigator();
 const SettingsStack = createStackNavigator();
 const MainStack = createStackNavigator();
+const UserStack = createStackNavigator();
 const Tabs = createBottomTabNavigator();
 
-
-const ChatsScreen = ({route}) => {
+const UserScreen = () => {
     const selectedUser = useSelectedUser((state) => state.selectedUser);
+    const theme = useThemeProvider((state) => state.theme);
+    return (
+        <UserStack.Navigator screenOptions={{ headerShown: true }} >
+            <UserStack.Screen name={'Tabs'} component={TabsScreen} options={{
+                headerTitleStyle: { display: "none" },
+                headerShown: false,
+            }}/>
+            <UserStack.Screen name={'Chat'}  component={Chat} options={{
+                title: selectedUser ? selectedUser.name : 'chat',
+                headerStyle: { backgroundColor: theme.headerColor },
+                headerTitleStyle: { color: theme.text },
+                headerTintColor: COLORS.orange, // Geri butonunun rengi
+                headerBackTitleVisible: false,
+                // tabBarStyle: { display: "none" }
+
+            }}/>
+        </UserStack.Navigator>
+    )
+}
+const TabsScreen = ({route}) => {
+    const theme = useThemeProvider((state) => state.theme);
+    const unreadContacts = useNotification((state) => state.unreadContacts);
+    useEffect(() => {
+        console.log('unreadContacts',unreadContacts)
+    },[unreadContacts])
+    return (
+        <Tabs.Navigator
+            screenOptions={({ route }) => ({
+                headerShown: false,
+                tabBarIcon: ({ focused, color, size }) => {
+                    let iconName;
+                    if (route.name === 'Home') {
+                        iconName = focused ? 'chatbubbles' : 'chatbubbles-outline';}
+                    else if (route.name === 'Settings') {
+                        iconName = focused ? 'settings' : 'settings-outline';
+                    }
+                    return <Ionicons name={iconName} size={size} color={color} />;
+                },
+                tabBarActiveTintColor: COLORS.orange,
+                tabBarInactiveTintColor: COLORS.gray,
+                tabBarHideOnKeyboard: true,
+                tabBarStyle: {
+                    backgroundColor: theme.pure, // Footer arka plan rengi
+                    borderTopColor: theme.line,
+                },
+            })}
+        >
+            <Tabs.Screen name="Home" component={ChatsScreen}
+                         options={{
+                             tabBarBadge: unreadContacts.length === 0 ? null : unreadContacts.length
+                        }}
+            />
+            <Tabs.Screen name="Settings" component={SettingsScreen} />
+        </Tabs.Navigator>
+    );
+}
+const ChatsScreen = ({route}) => {
     const setModalStatus = useModal((state) => state.setModalStatus);
-    const modalStatus = useModal((state) => state.modalStatus);
-    const [isModalVisible, setModalVisible] = useState(true)
+    const theme = useThemeProvider((state) => state.theme);
     const handlePlusPress = () => {
         setModalStatus(true)
     }
 
     return (
-        <ChatsStack.Navigator screenOptions={{ headerShown: true }}  >
+        <ChatsStack.Navigator screenOptions={{ headerShown: true }}
+            options={{
+                headerStyle: { backgroundColor: theme.headerColor },
+
+        }} >
 
             <ChatsStack.Screen name={'Mesajlar'}  component={Chats} options={{
-                headerStyle: { backgroundColor: COLORS.backgroundClr },
+                headerStyle: { backgroundColor: theme.headerColor, shadowColor: theme.line },
                 headerTitleStyle: { display: "none" },
-                // headerTitleStyle: { fontSize: 30, color: COLORS.inputColor },
-                // İstediğiniz font büyüklüğünü burada belirleyebilirsiniz
                 headerLeft: () => (
                     <TouchableOpacity style={{ marginLeft: 20 }}>
                         <Text style={styles.editText}>Düzenle</Text>
@@ -56,67 +115,37 @@ const ChatsScreen = ({route}) => {
                     </TouchableOpacity>
                 ),
             }}/>
-            <ChatsStack.Screen name={'Chat'}  component={Chat} options={{
-                title: selectedUser ? selectedUser.name : 'chat',
-                headerStyle: { backgroundColor: 'red' },
-            }}/>
         </ChatsStack.Navigator>
     )
 }
 const SettingsScreen = () => {
+    const theme = useThemeProvider((state) => state.theme);
     return (
         <SettingsStack.Navigator screenOptions={{ headerShown: true }} >
-            <SettingsStack.Screen name={'Account Settings'}  component={Settings}/>
+            <SettingsStack.Screen name={'Account Settings'}  component={Settings}  options={{
+                headerStyle: { backgroundColor: theme.headerColor, shadowColor: theme.line },
+                headerTitleStyle: { color: theme.text },
+            }}/>
+            <SettingsStack.Screen name={'Appearance'}  component={Appearance}  options={{
+                headerStyle: { backgroundColor: theme.headerColor, shadowColor: theme.line },
+                headerTitleStyle: { color: theme.text },
+            }}/>
         </SettingsStack.Navigator>
     )
 }
 
-const TabsScreen = ({route}) => (
-    <Tabs.Navigator screenOptions={
-        ({ route }) => ({
-            headerShown: false,
-            tabBarIcon: ({ focused, color, size }) => {
-                let iconName;
 
-                if (route.name === 'Home') {
-                    iconName = focused
-                        ? 'chatbubbles'
-                        : 'chatbubbles-outline';
-                } else if (route.name === 'Settings') {
-                    iconName = focused ? 'settings' : 'settings-outline';
-                }
-
-                // You can return any component that you like here!
-                return <Ionicons name={iconName} size={size} color={color} />;
-            },
-            tabBarActiveTintColor: COLORS.accent,
-            tabBarInactiveTintColor: COLORS.gray,
-        })}>
-        <Tabs.Screen name={'Home'} component={ChatsScreen} />
-        <Tabs.Screen name={'Settings'} component={SettingsScreen}/>
-    </Tabs.Navigator>
-);
 
 export default function App() {
-    const currentUser = useAuth((state) => state.currentUser);
-    console.log('CURRENT_USER',currentUser?.email)
+    const authUser = useAuth((state) => state.authUser);
+    console.log('CURRENT_USER',authUser?.email)
     const appState = useRef(AppState.currentState);
     const [appStateVisible, setAppStateVisible] = useState(appState.current);
 
     useEffect(() => {
         const subscription = AppState.addEventListener('change', nextAppState => {
-            if (
-                appState.current.match(/inactive|background/) &&
-                nextAppState === 'active'
-            ) {
-                console.log('App foreground!');
-            }
-            if (
-                appState.current === 'active' &&
-                nextAppState.match(/inactive|background/)
-            ) {
-                console.log('App BACKGROUND');
-            }
+            // (appState.current.match(/inactive|background/) && nextAppState === 'active') ? console.log('App foreground!')
+            //     : (appState.current === 'active' && nextAppState.match(/inactive|background/)) && console.log('App BACKGROUND')
             appState.current = nextAppState;
             setAppStateVisible(appState.current);
             // console.log('AppState', appState.current);
@@ -139,16 +168,12 @@ export default function App() {
     return (
         <NavigationContainer>
             <MainStack.Navigator screenOptions={{ presentation: 'card', headerShown: false }} >
-                <MainStack.Screen name={'Tabs'} component={TabsScreen} options={{
+                <MainStack.Screen name={'userScreen'} component={UserScreen} options={{
                     headerShown: true,
                     header: () => (
                         // <Text></Text>
                             <NotificationModal/>
-                    ),
-                    headerStyle: {
-                        // Android için başlık alanını tamamen gizle
-                        height: 60
-                    },
+                    )
                 }}/>
                 <MainStack.Screen name={'Login'} component={LoginScreen}  options={{
                     headerTitleStyle: { display: "none" },
@@ -183,10 +208,10 @@ const styles = StyleSheet.create({
         fontSize: 15,
         color: COLORS.orange,
     },
-    tabBar: {
-        display: 'flex',
-        backgroundColor: '#fff',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
+    // tabBar: {
+    //     display: 'flex',
+    //     backgroundColor: '#ff0000',
+    //     alignItems: 'center',
+    //     justifyContent: 'center',
+    // },
 });

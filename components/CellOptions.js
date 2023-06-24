@@ -1,47 +1,62 @@
 import React from 'react';
-import {COLORS} from "../config/constants";
+import {COLORS, darkTheme, lightTheme} from "../config/constants";
 import CellButton from "./CellButton";
 import {StyleSheet, View} from "react-native";
 import {setOnline, signoutAccount} from "../firebaseConfig";
 import useAuth from "../stores/useAuth";
+import useCurrentUser from "../stores/useCurrentUser";
 
 const CellOptions = ({navigation}) => {
-    const setCurrentUser = useAuth((state) => state.setCurrentUser);
-
+    const setAuthUser = useAuth((state) => state.setAuthUser);
+    const setCurrentUser = useCurrentUser((state) => state.setCurrentUser);
 
     const handleLogout = async () => {
          await signoutAccount()
-        setCurrentUser(null)
+            setAuthUser(null)
+            setCurrentUser(null)
          setTimeout(() => {
              navigation.navigate('Login')
          },500)
     }
+    const handleAppearance = async () => {
+             navigation.navigate('Appearance')
+    }
 return (
-    <View>
+    <View style={styles.options}>
         <CellButton
-            icon={'log-out-outline'}
-            text={'Logout'}
-            onPress={handleLogout}
-            tintColor={COLORS.accent}
+            icon={'information-circle-outline'}
+            text={'Help'}
+            onPress={() => {alert('Help')}}
+            tintColor={COLORS.green}
         />
+        <CellButton
+            icon={'heart-outline'}
+            text={'Tell a Friend'}
+            onPress={() => {alert('Thanks v3')}}
+            tintColor={COLORS.pink}
+        />
+        <CellButton
+            icon={'contrast-outline'}
+            text={'Appearance'}
+            onPress={handleAppearance}
+            tintColor={COLORS.black}
+        />
+
         <View style={styles.bottomOpt}>
             <CellButton
-                icon={'information-circle-outline'}
-                text={'Help'}
-                onPress={() => {alert('Help')}}
-                tintColor={COLORS.green}
-            />
-            <CellButton
-                icon={'heart-outline'}
-                text={'Tell a Friend'}
-                onPress={() => {alert('Thanks v3')}}
-                tintColor={COLORS.pink}
+                icon={'log-out-outline'}
+                text={'Logout'}
+                onPress={handleLogout}
+                tintColor={COLORS.accent}
             />
         </View>
     </View>
 )
 }
 const styles = StyleSheet.create({
+    options: {
+      marginTop: 16
+    },
     bottomOpt: {
         marginTop: 16,
     },

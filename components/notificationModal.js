@@ -17,21 +17,21 @@ import {ColorCreator} from "./ColorCreator";
 import {setNotificationStatus} from "../firebaseConfig";
 import useAuth from "../stores/useAuth";
 import useSelectedUser from "../stores/useSelectedUser";
+import useThemeProvider from "../stores/useThemeProvider";
 
 
 function NotificationModal({ }) {
+    const theme = useThemeProvider((state) => state.theme);
     const [modalKey, setModalKey] = React.useState(0);
     const insets = useSafeAreaInsets();
     const setNotificationModalStatus = useNotificationModal((state) => state.setNotificationModalStatus);
     const notificationModalStatus = useNotificationModal((state) => state.notificationModalStatus);
     const notificationNumber = useNotificationModal((state) => state.notificationNumber);
     const notificationData = useNotificationModal((state) => state.notificationData);
-    const setSelectedUser = useSelectedUser((state) => state.setSelectedUser);
-    const currentUser = useAuth((state) => state?.currentUser);
 
     useEffect(() => {
         const currentTime = new Date();
-        const isApproximatelyEqual = Math.abs(currentTime - notificationData?.createdAt) <= 5000; // Yaklaşık olarak eşitlik kontrolü (5000 milisaniye tolerans)
+        const isApproximatelyEqual = Math.abs(currentTime - notificationData?.createdAt) <= 10000; // Yaklaşık olarak eşitlik kontrolü (5000 milisaniye tolerans)
         if (isApproximatelyEqual) {
             setNotificationModalStatus(true);
             setModalKey((prevKey) => prevKey + 1);
@@ -51,7 +51,7 @@ function NotificationModal({ }) {
     }
     return (
 
-        <View style={styles.areaView}>
+        <View style={[styles.areaView, { backgroundColor: theme.headerColor}]}>
             <Modal
                 key={modalKey}
                 animationType="slide"
@@ -67,9 +67,9 @@ function NotificationModal({ }) {
                 coverScreen={false}
                 // backdropColor={'transparent'}
             >
-                <TouchableOpacity style={styles.modalView} onPress={handlePress }>
+                <TouchableOpacity style={[styles.modalView, { backgroundColor: theme.notificationModalColor}]} onPress={handlePress }>
                    <View style={styles.info}>
-                       <View style={[styles.avatar, { backgroundColor: ColorCreator(notificationData?.color)}]}>
+                       <View style={[styles.avatar, { borderColor: theme.borderColor}, { backgroundColor: ColorCreator(notificationData?.color)}]}>
                            <Text style={styles.avatarLabel}>{
                                notificationData?.name?.toUpperCase().split(' ')
                                    .reduce((prev,current) => `${prev}${current[0]}`,'')}
@@ -77,7 +77,7 @@ function NotificationModal({ }) {
                        </View>
                        <View style={styles.modalTextArea}>
                            <Text style={styles.modalText}>{notificationData?.name}</Text>
-                           <Text style={styles.modalTextMessage}>{notificationData?.text?.length >= 30 ? notificationData?.text.slice(0,30)+'...' : notificationData?.text}</Text>
+                           <Text style={[styles.modalTextMessage, {color: theme.text}]}>{notificationData?.text?.length >= 30 ? notificationData?.text.slice(0,30)+'...' : notificationData?.text}</Text>
                            {/*<Text style={styles.modalTextMessage}>{notificationData?.text}</Text>*/}
                        </View>
                    </View>
@@ -96,7 +96,7 @@ const styles = StyleSheet.create({
         // flexDirection: 'row',
         // justifyContent: 'center',
         // alignItems: 'center',
-        backgroundColor: COLORS.white,
+
     },
     modalView: {
         width: '100%',
@@ -108,7 +108,6 @@ const styles = StyleSheet.create({
         marginHorizontal: 0,
         paddingHorizontal: 10,
         paddingVertical: 10,
-        backgroundColor: COLORS.white,
         borderRadius: 10,
         padding: 0,
         shadowColor: '#000',
@@ -152,7 +151,6 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 3,
         borderWidth: 1,
-        borderColor: COLORS.white,
 
     },
     avatarLabel: {

@@ -68,28 +68,23 @@ export const setTyping = async (chatRef, status) => {
         }
     }
 };
-export const listenTyping = (chatRef,setTypers) => {
+export const listenTyping = (chatRef, onTypersUpdate) => {
     const encodedRef = chatRef?.replace(/[.]/g,'_');
     const typingRef = ref(database, 'typing/' + encodedRef);
 
-    // Dinleyiciyi başlat
     const unsubscribe = onValue(typingRef, (snapshot) => {
-        // Veri değiştiğinde burası çalışacak
         const typingData = snapshot.val();
-
-        // Typing verisini kullanabilirsiniz
-        // Örneğin, typers dizisini almak isterseniz
         const typers = typingData?.typers || [];
-
         // Typers'ı kullanarak yapmak istediğiniz işlemi gerçekleştirin
-        console.log('Typers:', typers);
-        setTypers(typers)
+        // Örneğin, typers dizisini dışarı aktarmak için onTypersUpdate callback fonksiyonunu kullanabilirsiniz
+        onTypersUpdate(typers);
     });
+};
 
     // Dinleyiciyi durdurmak istediğinizde, unsubscribe fonksiyonunu çağırın
     // Örneğin, bir bileşenin temizlenmesi veya sayfa geçişi durumunda
     // unsubscribe();
-};
+
 
 // Yeni kullanıcı oluşturma
 export const createAccount = async (email, password) => {
@@ -169,6 +164,13 @@ export const setOnline = async (online) => {
         const userRef = auth.currentUser.email
         const chatRef = doc(db, 'users', userRef);
         await updateDoc(chatRef, { online: online });
+    }
+}
+export const setUserColorDB = async (colorNum) => {
+    if (auth?.currentUser?.email) {
+        const userRef = auth.currentUser.email
+        const chatRef = doc(db, 'users', userRef);
+        await updateDoc(chatRef, { colorNum: colorNum });
     }
 }
 export const getUser = async (userId,setUser) => {
