@@ -8,7 +8,7 @@ import {
     Pressable,
     Modal,
     TextInput,
-    ScrollView, Button
+    ScrollView, Button, StatusBar
 } from "react-native";
 import {Ionicons} from '@expo/vector-icons'
 import ContactRow from "../components/ContactRow";
@@ -16,7 +16,7 @@ import ContactRow from "../components/ContactRow";
 import LoginScreen from "./LoginScreen";
 import {createChat, listenChats, listenChatss, snapshotToArray} from "../firebaseConfig";
 import useAuth from "../stores/useAuth";
-import {COLORS} from "../config/constants";
+import {COLORS, darkTheme} from "../config/constants";
 import chat from "../components/Chat";
 import useChatData from "../stores/useMessages";
 import useSelectedUser from "../stores/useSelectedUser";
@@ -50,6 +50,15 @@ function Chats({navigation}) {
     const [modalVisible, setModalVisible] = useState(false);
     const [userMail, setUserMail] = useState('')
     const [lastMessage,setlastMessage] = useState('No message')
+    const [statusBarStyle, setStatusBarStyle] = useState('dark-content');
+
+    useEffect(() => {
+        if (theme !== darkTheme) {
+            setStatusBarStyle('dark-content')
+        }
+        else  setStatusBarStyle('light-content')
+    },[theme])
+
 
     // const ChatKey = authUser?.email+userMail
     // console.warn('hhhhh', chats)
@@ -96,6 +105,13 @@ function Chats({navigation}) {
 
     return (
         <ScrollView style={[styles.area, {backgroundColor: theme.pure}]}>
+            <StatusBar
+                animated={true}
+                backgroundColor="#61dafb"
+                barStyle={statusBarStyle}
+                // showHideTransition={statusBarTransition}
+                // hidden={hidden}
+            />
             <View>
                 <Text style={[styles.bannerText , {color: theme.text}]}>Mesajlar</Text>
             </View>
